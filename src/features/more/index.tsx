@@ -24,10 +24,7 @@ import { Button } from '../../components';
 export const MoreScreen: React.FC = () => {
   const {
     settings,
-    setEngineKind,
-    setUseOnlineSpeech,
     setPreferredLanguage,
-    setVolumeButtonTrigger,
   } = useSettingsStore();
 
   const [resetSuccess, setResetSuccess] = useState<boolean>(false);
@@ -155,31 +152,28 @@ export const MoreScreen: React.FC = () => {
           </Button>
         </div>
 
-        {/* Setting: Demo Engine Mode */}
+        {/* Setting: Engine Mode (Disabled per Phase 4.5 honesty) */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 rounded-xl bg-bg-surface2/60 border border-border-subtle">
           <div className="space-y-0.5 max-w-lg">
             <div className="flex items-center gap-2">
-              <Cpu className="w-4 h-4 text-semantic-green" />
+              <Cpu className="w-4 h-4 text-semantic-amber" />
               <span className="text-body-sm font-semibold text-text-primary">
-                Intelligence Engine Mode
+                Intelligence Engine
               </span>
             </div>
             <p className="text-metadata text-text-muted leading-relaxed">
-              Toggle between Simulated Seed Engine (for offline demonstrations & testing) and On-Device WebGPU/WASM pipeline.
+              Currently running SimulatedEngine for on-device testing and field demonstrations.
             </p>
           </div>
 
           <div className="flex items-center gap-2 shrink-0">
             <button
               type="button"
-              onClick={() => setEngineKind(settings.engineKind === 'simulated' ? 'on-device' : 'simulated')}
-              className={`px-3 py-1.5 rounded-lg text-metadata-xs font-mono font-bold border transition-all ${
-                settings.engineKind === 'simulated'
-                  ? 'bg-semantic-amber-surface text-semantic-amber-text border-semantic-amber-border'
-                  : 'bg-semantic-green-surface text-semantic-green-text border-semantic-green-border'
-              }`}
+              disabled
+              className="px-3 py-1.5 rounded-lg text-metadata-xs font-mono font-bold border bg-bg-surface2 text-text-muted border-border-subtle cursor-not-allowed opacity-80"
+              title="On-device engine: coming in a later build"
             >
-              {settings.engineKind === 'simulated' ? 'Simulated Engine' : 'On-Device WebGPU'}
+              On-device engine: coming in a later build
             </button>
           </div>
         </div>
@@ -208,29 +202,29 @@ export const MoreScreen: React.FC = () => {
           </Button>
         </div>
 
-        {/* Setting 1: Speech Service */}
+        {/* Setting 1: Speech Service (Disabled per Phase 4.5 truthfulness) */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 rounded-xl bg-bg-surface2/60 border border-border-subtle">
           <div className="space-y-0.5 max-w-lg">
             <div className="flex items-center gap-2">
-              <CloudLightning className="w-4 h-4 text-semantic-amber" />
-              <label htmlFor="online-speech-toggle" className="text-body-sm font-semibold text-text-primary cursor-pointer">
-                Online Speech (uses your browser's speech service)
+              <CloudLightning className="w-4 h-4 text-text-muted" />
+              <label htmlFor="online-speech-toggle" className="text-body-sm font-semibold text-text-secondary cursor-not-allowed">
+                Online Speech
               </label>
             </div>
-            <p className="text-metadata text-text-muted leading-relaxed">
-              Default is OFF for 100% on-device privacy. When enabled, speech audio is processed via your browser vendor's cloud service and the status badge updates accordingly.
+            <p className="text-metadata text-semantic-amber-text font-medium leading-relaxed">
+              Online speech isn't wired up in this build.
             </p>
           </div>
 
-          <label className="relative inline-flex items-center cursor-pointer shrink-0">
+          <label className="relative inline-flex items-center cursor-not-allowed shrink-0">
             <input
               id="online-speech-toggle"
               type="checkbox"
-              checked={settings.useOnlineSpeech}
-              onChange={(e) => setUseOnlineSpeech(e.target.checked)}
+              disabled
+              checked={false}
               className="sr-only peer"
             />
-            <div className="w-11 h-6 bg-border-strong peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-semantic-green"></div>
+            <div className="w-11 h-6 bg-border-strong rounded-full opacity-40 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5"></div>
           </label>
         </div>
 
@@ -259,37 +253,37 @@ export const MoreScreen: React.FC = () => {
           </select>
         </div>
 
-        {/* Setting 3: Hardware volume button trigger notice per Rule 7c */}
+        {/* Setting 3: Hardware volume button trigger (Disabled per Phase 4.5 truthfulness) */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 rounded-xl bg-bg-surface2/60 border border-border-subtle">
           <div className="space-y-0.5 max-w-lg">
             <div className="flex items-center gap-2">
-              <Volume2 className="w-4 h-4 text-text-secondary" />
-              <label htmlFor="volume-trigger-toggle" className="text-body-sm font-semibold text-text-primary cursor-pointer">
+              <Volume2 className="w-4 h-4 text-text-muted" />
+              <label htmlFor="volume-trigger-toggle" className="text-body-sm font-semibold text-text-secondary cursor-not-allowed">
                 Hardware Volume-Button Trigger
               </label>
             </div>
-            <p className="text-metadata text-text-muted leading-relaxed">
-              <strong>Browser Limitation Note:</strong> Standard web browsers cannot intercept hardware volume keys while backgrounded or locked due to OS sandboxing. This setting enables keydown listening when the PWA is active and in foreground.
+            <p className="text-metadata text-semantic-amber-text font-medium leading-relaxed">
+              Hardware volume trigger isn't wired up in this build.
             </p>
           </div>
 
-          <label className="relative inline-flex items-center cursor-pointer shrink-0">
+          <label className="relative inline-flex items-center cursor-not-allowed shrink-0">
             <input
               id="volume-trigger-toggle"
               type="checkbox"
-              checked={settings.volumeButtonTrigger}
-              onChange={(e) => setVolumeButtonTrigger(e.target.checked)}
+              disabled
+              checked={false}
               className="sr-only peer"
             />
-            <div className="w-11 h-6 bg-border-strong peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-semantic-green"></div>
+            <div className="w-11 h-6 bg-border-strong rounded-full opacity-40 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5"></div>
           </label>
         </div>
 
-        {/* Transparency note: WebGPU/WASM Engine per Rule 7f */}
+        {/* Transparency note: Simulated Engine notice */}
         <div className="p-3 rounded-xl bg-bg-surface2/40 border border-border-subtle flex items-start gap-2.5">
           <Cpu className="w-4 h-4 text-text-muted mt-0.5 shrink-0" />
           <div className="text-metadata text-text-muted leading-relaxed">
-            <strong className="text-text-secondary">On-Device Compute Notice (Rule 7f):</strong> Web browsers run on-device machine learning through <strong>WebGPU</strong> or <strong>WASM SIMD</strong> runtimes. Web applications cannot directly address mobile NPU silicon. FieldNote runs 100% locally on standard web graphics and CPU pipelines.
+            <strong className="text-text-secondary">Simulated Engine:</strong> Speech transcription, entity extraction, and confidence scores are currently simulated on-device using sample field recordings and seed templates.
           </div>
         </div>
       </div>

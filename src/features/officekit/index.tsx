@@ -8,6 +8,16 @@ export const OfficeKitScreen: React.FC = () => {
   const [isRendering, setIsRendering] = useState<boolean>(false);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
+  const getCssVar = (name: string, fallback: string): string => {
+    if (typeof window === 'undefined') return fallback;
+    try {
+      const val = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+      return val || fallback;
+    } catch {
+      return fallback;
+    }
+  };
+
   const handleRasterizeShaping = () => {
     setIsRendering(true);
     const canvas = canvasRef.current;
@@ -15,26 +25,26 @@ export const OfficeKitScreen: React.FC = () => {
       const ctx = canvas.getContext('2d');
       if (ctx) {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-        ctx.fillStyle = '#090B0D';
+        ctx.fillStyle = getCssVar('--color-bg-base', '#090B0D');
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
         // Header
-        ctx.fillStyle = '#10B981';
+        ctx.fillStyle = getCssVar('--color-green-base', '#10B981');
         ctx.font = 'bold 16px Inter, sans-serif';
         ctx.fillText('OFFICEKIT PDF EXPORT ENGINE', 20, 35);
 
         // Latin
-        ctx.fillStyle = '#F1F5F9';
+        ctx.fillStyle = getCssVar('--color-text-primary', '#F1F5F9');
         ctx.font = '14px Inter, sans-serif';
         ctx.fillText('English (Vector Text): Field inspection summary #042', 20, 70);
 
         // Telugu shaped via browser canvas
-        ctx.fillStyle = '#FCD34D';
+        ctx.fillStyle = getCssVar('--color-amber-text', '#FCD34D');
         ctx.font = '15px "Noto Sans Telugu", sans-serif';
         ctx.fillText(`Telugu: ${teluguSample}`, 20, 110);
 
         // Hindi shaped via browser canvas
-        ctx.fillStyle = '#6EE7B7';
+        ctx.fillStyle = getCssVar('--color-green-text', '#6EE7B7');
         ctx.font = '15px "Noto Sans Devanagari", sans-serif';
         ctx.fillText(`Hindi: ${hindiSample}`, 20, 150);
       }
@@ -82,7 +92,7 @@ export const OfficeKitScreen: React.FC = () => {
             ref={canvasRef}
             width={600}
             height={180}
-            className="w-full max-w-2xl h-auto rounded-lg border border-border-default bg-[#090B0D]"
+            className="w-full max-w-2xl h-auto rounded-lg border border-border-default bg-bg-base"
           />
           <p className="text-metadata-xs font-mono text-text-muted mt-2">
             Canvas Raster Resolution: 600x180 (Native Browser Font Shaper)

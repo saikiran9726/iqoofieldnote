@@ -66,12 +66,12 @@ FieldNote includes an offline-first **9-Step Demo Mode** that allows end-to-end 
 
 ### The 9-Step Scripted Tour
 1. **Capture Home (`/capture`)**: Central dominant mic button with offline badge and Daylight mode quick-toggle.
-2. **Live Audio Recording**: Real frequency analyzer waveform, noise meter, and real-time Telugu + English code-mixed transcript stream.
+2. **Live Audio Recording**: Real frequency analyzer waveform, noise meter, and simulated Telugu + English code-mixed transcript stream.
 3. **Staggered Processing Pipeline**: 4-stage pipeline animation (*Listening* &rarr; *Extracting* &rarr; *Verifying* &rarr; *Building Report*).
 4. **Structured Report Editor (`/reports/rep-hero-001`)**: Auto-compiled field dossier with confidence breakdown bars (Category 97%, Findings 94%, Deadline 81%) and inline tap-to-edit with undo history.
 5. **Missing Entity Resolution (`QuestionCard`)**: Sliding amber prompt resolving missing Panel ID to `PANEL-204` (sets field amber &rarr; green).
-6. **Photographic Evidence & Inspector Seal**: Attached photo evidence and ISO-19011 cryptographic sign-off seal.
-7. **Real On-Device PDF Export**: Generates an authentic ISO-compliant PDF with pure vector Latin text, canvas-rasterized Telugu font ligature shaping, and SHA-256 seal.
+6. **Photographic Evidence & Inspector Seal**: Attached photo evidence and cryptographic sign-off seal.
+7. **Real On-Device PDF Export**: Generates an authentic PDF report with pure vector Latin text, canvas-rasterized Telugu font ligature shaping, and SHA-256 seal.
 8. **Tasks & Action Items (`/tasks`)**: Extracted remediation punch list organized into OPEN and COMPLETED groups with reminder notifications.
 9. **PANEL-204 Asset History (`/assets/PANEL-204`)**: Equipment dossier tracking 4 linked reports and a 3x recurring loose connection hazard timeline.
 
@@ -86,17 +86,19 @@ In strict compliance with standing rules and system transparency:
 
 | Feature / Subsystem | Implementation Status | Technical Details |
 | :--- | :--- | :--- |
+| **Speech Transcription** | **Simulated** | `SimulatedEngine` streams pre-authored Telugu + English code-mixed transcript tokens with realistic jitter and audio-length pacing. Real audio is recorded and saved to IndexedDB. |
+| **Field Extraction & Confidence** | **Simulated** | Category extraction, severity mapping, action generation, and confidence percentages (97%, 94%, 81%) are generated via `SimulatedEngine`. |
+| **On-Device ML Engine** | **Roadmap (Coming Soon)** | Only `SimulatedEngine` exists in this build. True on-device ML execution (e.g. WebGPU/WASM) is planned for a future release; the UI displays "Simulated engine" on all screen sizes. |
 | **Offline Core & DB** | **Real** | IndexedDB storage powered by Dexie.js. Zero runtime network dependencies. |
-| **On-Device PDF Export** | **Real** | Generated in-browser via `jsPDF`. Pure vector Latin text + high-DPI canvas-rasterized Indic text (`Noto Sans Telugu` / `Noto Sans Devanagari`) for accurate ligature shaping. |
+| **On-Device PDF Export** | **Real** | Generated entirely client-side via `jsPDF`. Pure vector Latin text + high-DPI canvas-rasterized Indic text (`Noto Sans Telugu` / `Noto Sans Devanagari`) for accurate complex script ligature shaping. |
 | **Multi-Sheet Excel (.xlsx)** | **Real** | Generated on-device via `xlsx` (SheetJS) with Summary, Findings, Actions, and Audit Trail sheets. |
 | **CSV, JSON, Plain Text Exports** | **Real** | Real on-device blob generators with Web Share API and download fallbacks. |
-| **Cryptographic SHA-256 Hash Chain** | **Real** | Tamper-evident ledger computed via Web Crypto `SubtleCrypto` (`hash = SHA256(prevHash + canonicalJson)`). Detects field mutations instantly. |
-| **Audio Recorder & Waveform** | **Real** | `navigator.mediaDevices.getUserMedia` + `MediaRecorder` + `AudioContext` `AnalyserNode` with RMS noise floor classification. Headless mock fallback for CI. |
+| **Cryptographic SHA-256 Hash Chain** | **Real** | Tamper-evident ledger computed via Web Crypto `SubtleCrypto` (`hash = SHA256(prevHash + canonicalJson)`). Detects field mutations and marks audit blocks. |
+| **Audio Recorder & Waveform** | **Real** | `navigator.mediaDevices.getUserMedia` + `MediaRecorder` + `AudioContext` `AnalyserNode` with live frequency analysis and RMS noise floor classification. |
 | **Notification API Reminders** | **Real** | Native browser `Notification` API with permission handling and graceful in-app alert fallback. |
-| **Design Tokens & Daylight Mode** | **Real** | Strict token system in `src/design/tokens.ts` with CSS variables. High-contrast WCAG AA+ palette. |
+| **Design Tokens & Daylight Mode** | **Real** | Strict token system in `src/design/tokens.ts` with CSS variables. High-contrast WCAG AA+ daylight palette. |
 | **PWA & Offline Precaching** | **Real** | Full asset precaching via `vite-plugin-pwa` (Workbox) including self-hosted fonts. |
-| **Self-Hosted Typography** | **Real** | `@fontsource` packages for Inter, JetBrains Mono, Noto Sans Telugu, and Noto Sans Devanagari. No external Google Fonts or runtime CDN requests. |
-| **Web Speech API** | **Real & Optional** | Off by default per Rule 7a. When enabled, uses browser speech service and updates status badge. |
-| **WebAuthn Biometrics** | **Real / Simulated Fallback** | Uses `navigator.credentials` / WebAuthn when supported; falls back to simulated biometric toggle when hardware is unavailable. |
-| **Volume-Button Trigger** | **Real Foreground Listener** | Keydown handler active when PWA is in foreground. Transparently discloses browser background limitations. |
-| **On-Device Machine Learning** | **Real WebGPU / WASM** | Runs via WebGPU / WASM SIMD. Does not claim proprietary mobile NPU access (Rule 7f). |
+| **Self-Hosted Typography** | **Real** | `@fontsource` packages for Inter, JetBrains Mono, Noto Sans Telugu, and Noto Sans Devanagari. Zero external font downloads. |
+| **Web Speech API** | **Not Wired Up** | Disabled with an honest explanation note in Settings. `OfflineBadge` indicates offline simulated status. |
+| **Hardware Volume Trigger** | **Not Wired Up** | Disabled with an honest explanation note in Settings due to browser background key capture limitations. |
+| **Biometric App Lock** | **Simulated** | Clearly labelled as a simulated toggle in Privacy settings; does not claim WebAuthn or `navigator.credentials` hardware verification. |

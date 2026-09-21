@@ -213,7 +213,7 @@ export const SEED_FINDINGS: Finding[] = [
   {
     id: 'find-hero-02',
     reportId: 'rep-hero-001',
-    text: '1 damaged cable insulation sheath on incoming Phase R 16mm² feeder conductor.',
+    text: '1 damaged cable insulation sheath on incoming Phase R 16 mm2 feeder conductor.',
     category: 'Cable Integrity',
     severity: 'high',
     confidence: 0.91,
@@ -282,7 +282,7 @@ export const SEED_ACTIONS: Action[] = [
   {
     id: 'act-hero-02',
     reportId: 'rep-hero-001',
-    title: 'Replace damaged 16mm² heat-resistant cable sleeve on Phase R',
+    title: 'Replace damaged 16 mm2 heat-resistant cable sleeve on Phase R',
     description: 'Install double-wall heat shrink tubing rated for 125°C continuous operation.',
     assignee: 'S. Reddy (Field Technician)',
     priority: 'high',

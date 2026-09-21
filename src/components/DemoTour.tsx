@@ -64,7 +64,7 @@ const DEMO_STEPS: DemoStep[] = [
   {
     id: 6,
     title: '6. Photographic Evidence & Seal',
-    description: 'Attached photo evidence and ISO-19011 cryptographic sign-off seal.',
+    description: 'Attached photo evidence and cryptographic sign-off seal.',
     route: '/reports/rep-hero-001',
     icon: ShieldCheck,
   },

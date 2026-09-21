@@ -248,4 +248,62 @@
 ### Known Gaps
 - None for Phase 4. Subsequent Phase 5 will implement full Batch Photo Capture, Audio/CSV/JSON Import Hub, QR Code Scanner, and Bulk Actions.
 
+---
+
+## Phase 4.5: Honesty, Consistency, and Test Fixes Pass
+
+### What Was Done
+- **Engine Honesty & Transparency**:
+  - Confirmed only `SimulatedEngine` exists in current builds.
+  - In `MoreScreen`, replaced Simulated/On-Device toggle with a disabled control clearly labelled `"On-device engine: coming in a later build"`.
+  - Enforced `engineKind: 'simulated'` in `settingsStore.ts` upon initial load, ignoring any legacy/corrupted setting values.
+  - Updated `TopBar.tsx` so the `"Simulated engine"` badge displays across all screen sizes, including mobile widths under 640px.
+- **Settings Truthfulness**:
+  - Disabled Online Speech toggle in `MoreScreen` with explanatory note: `"Online speech isn't wired up in this build"`.
+  - Updated `OfflineBadge.tsx` to never claim online speech is active; consistently reflects offline status.
+  - Disabled Hardware Volume Button toggle with honest explanatory note: `"Hardware volume trigger isn't wired up in this build"`.
+  - Re-labelled biometric toggle on Privacy screen as `"Biometric App Lock (Simulated)"` with simulated badge, removing unsupported WebAuthn hardware claims.
+- **README Overhaul**:
+  - Rewrote the *"Real vs simulated"* matrix in `README.md` to precisely reflect implementation reality.
+  - Explicitly classified speech transcription, field extraction, and confidence scoring as **Simulated** (`SimulatedEngine`).
+  - Removed unsupported claims regarding on-device ML, working Web Speech, working volume trigger, and real WebAuthn biometrics.
+  - Stripped all `"ISO-compliant"` and `"ISO-19011"` marketing/standard claims across `README.md`, UI strings, and PDF export text.
+- **PWA & Viewport Standards**:
+  - Removed `share_target` entry from `vite.config.ts` PWA manifest until Phase 5 handler implementation.
+  - Removed `maximum-scale=1.0` and `user-scalable=no` from `index.html` viewport meta tag to uphold accessibility standards.
+- **PDF Layout & Typography Fixes (`src/lib/exportEngine.ts`)**:
+  - Resolved Telugu line collision above `"Findings & Extracted Hazards"`: `rasterizeIndicText` measures rendered canvas height in points, and the generator dynamically advances cursor `y += Math.ceil(displayHeight) + 16` before drawing section headers.
+  - Replaced problematic `16mm²` superscript encoding with `16 mm2` across `seedData.ts` and introduced `cleanPdfText` sanitization to prevent corrupted Latin-1 font glyphs in `jsPDF`.
+  - Replaced `"ISO-19011"` header/footer strings with `"On-device Cryptographic Ledger Seal"`.
+  - Canvas colors dynamically read CSS variables (`--color-text-primary`, `--color-bg-base`, etc.) with fallback support.
+- **Design Tokens & Canvas Styling**:
+  - Inspected canvas drawing implementations across `SignaturePad.tsx`, `OfficeKitScreen`, and `exportEngine.ts`.
+  - Replaced raw hardcoded hex codes with CSS variables (`--color-green-base`, `--color-bg-base`, `--color-text-primary`, etc.) via `getComputedStyle` with safe fallbacks.
+  - Removed raw hex background utilities in favor of semantic token class `bg-bg-base`.
+- **Strict E2E Playwright Suite (`scripts/capture-screens.mjs`)**:
+  - Replaced all soft `if (await ...isVisible())` guards with strict Playwright `expect` assertions.
+  - Fully verified all 9 demo steps in strict offline mode (`context.setOffline(true)`).
+  - Verified Panel ID resolution to `PANEL-204` with green status and linked asset association.
+  - Verified SHA-256 tamper-evident ledger seal verification.
+  - Verified authentic on-device PDF export download, validating suggested filename and size (>176 KB, well above the 5 KB minimum requirement).
+  - Verified mobile (390x844) and desktop (1280x800) layouts, reports list filters, and Daylight mode.
+  - Saved all 16 verification screenshots and the hero PDF dossier to `docs/screens/phase-4-fix/`.
+- **Git Hygiene**:
+  - Added `tsconfig.tsbuildinfo` to `.gitignore` and removed it from git tracking via `git rm --cached`.
+
+### Quality & Verification Results
+- `npm run typecheck`: Passed (0 errors).
+- `npm run lint`: Passed (0 warnings, 0 errors).
+- `npm test`: Passed (13/13 unit tests passing).
+- `npm run build`: Passed (clean production build with 36 precached PWA assets).
+- `npm run test:e2e`: Passed (zero console errors, all 9 demo steps strictly asserted, PDF generated and verified).
+
+### Assumptions Logged
+1. Future on-device ML execution remains planned for subsequent phases and is clearly communicated in both UI and technical documentation as a roadmap item.
+2. In accordance with zero-claim honesty, all ledger references describe the system as an on-device cryptographic SHA-256 hash chain without referencing uncertified ISO audit standards.
+
+### Known Gaps
+- None. Phase 4.5 honesty and verification pass complete.
+
+
 

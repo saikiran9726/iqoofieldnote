@@ -15,12 +15,22 @@ export const SignaturePad: React.FC<SignaturePadProps> = ({
   const [isDrawing, setIsDrawing] = useState<boolean>(false);
   const [hasSignature, setHasSignature] = useState<boolean>(false);
 
+  const getStrokeColor = () => {
+    if (typeof window === 'undefined') return '#10B981';
+    try {
+      const color = getComputedStyle(document.documentElement).getPropertyValue('--color-green-base').trim();
+      return color || '#10B981';
+    } catch {
+      return '#10B981';
+    }
+  };
+
   useEffect(() => {
     const canvas = canvasRef.current;
     if (canvas) {
       const ctx = canvas.getContext('2d');
       if (ctx) {
-        ctx.strokeStyle = '#10B981';
+        ctx.strokeStyle = getStrokeColor();
         ctx.lineWidth = 2.5;
         ctx.lineCap = 'round';
         ctx.lineJoin = 'round';
@@ -33,7 +43,7 @@ export const SignaturePad: React.FC<SignaturePadProps> = ({
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
-    ctx.strokeStyle = '#10B981';
+    ctx.strokeStyle = getStrokeColor();
     ctx.lineWidth = 2.5;
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';

@@ -70,14 +70,14 @@ export const TopBar: React.FC<TopBarProps> = ({ title, subtitle }) => {
 
               {engineKind === 'simulated' ? (
                 <span
-                  className="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-mono font-semibold uppercase tracking-wider bg-semantic-amber-surface text-semantic-amber-text border border-semantic-amber-border"
+                  className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-mono font-semibold uppercase tracking-wider bg-semantic-amber-surface text-semantic-amber-text border border-semantic-amber-border shrink-0"
                   title="Running in Demo Mode with Simulated Intelligence Engine"
                 >
                   <Cpu className="w-2.5 h-2.5" />
                   <span>Simulated engine</span>
                 </span>
               ) : (
-                <span className="hidden sm:inline-block px-1.5 py-0.5 rounded text-[10px] font-mono font-semibold uppercase tracking-wider bg-bg-surface2 text-text-muted border border-border-subtle">
+                <span className="inline-block px-1.5 py-0.5 rounded text-[10px] font-mono font-semibold uppercase tracking-wider bg-bg-surface2 text-text-muted border border-border-subtle shrink-0">
                   v0.1
                 </span>
               )}

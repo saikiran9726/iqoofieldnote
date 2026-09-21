@@ -20,19 +20,25 @@ export const useSettingsStore = create<SettingsStoreState>((set, get) => ({
     try {
       const stored = await db.settings.get('current');
       if (stored) {
-        set({ settings: stored });
+        const forced = { ...stored, engineKind: 'simulated' as const };
+        set({ settings: forced });
+        if (stored.engineKind !== 'simulated') {
+          await db.settings.put(forced);
+        }
       } else {
-        await db.settings.put(SEED_SETTINGS);
-        set({ settings: SEED_SETTINGS });
+        const defaultSettings = { ...SEED_SETTINGS, engineKind: 'simulated' as const };
+        await db.settings.put(defaultSettings);
+        set({ settings: defaultSettings });
       }
     } catch {
       // Fallback
-      set({ settings: SEED_SETTINGS });
+      set({ settings: { ...SEED_SETTINGS, engineKind: 'simulated' } });
     }
   },
 
-  setEngineKind: async (engineKind) => {
-    const updated = { ...get().settings, engineKind };
+  setEngineKind: async (_engineKind) => {
+    // Only SimulatedEngine exists in this build; force simulated
+    const updated = { ...get().settings, engineKind: 'simulated' as const };
     set({ settings: updated });
     await db.settings.put(updated);
   },

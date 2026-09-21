@@ -1005,7 +1005,7 @@ export const ReportDetailScreen: React.FC = () => {
                 </p>
               </div>
               <p className="text-[11px] font-mono text-text-muted">
-                Offline Immutable Audit Standard ISO-19011
+                Offline Immutable Audit Ledger Seal
               </p>
             </div>
           </div>

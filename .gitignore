@@ -32,3 +32,4 @@ pnpm-debug.log*
 .DS_Store
 test-results
 playwright-report
+tsconfig.tsbuildinfo

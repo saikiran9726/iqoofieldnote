@@ -14,15 +14,36 @@ export interface ExportOptions {
  * Rasterizes Indic script (Telugu / Hindi) into a high-DPI canvas image
  * to ensure perfect complex font ligature shaping in client-generated PDFs.
  */
+export interface RasterizedText {
+  dataUrl: string;
+  widthPt: number;
+  heightPt: number;
+}
+
+/**
+ * Cleans text for Latin PDF rendering (e.g. converting superscript 16mm² to 16 mm2)
+ */
+export function cleanPdfText(str: string): string {
+  if (!str) return '';
+  return str
+    .replace(/16mm²/g, '16 mm2')
+    .replace(/mm²/g, 'mm2')
+    .replace(/²/g, '2');
+}
+
+/**
+ * Rasterizes Indic script (Telugu / Hindi) into a high-DPI canvas image
+ * to ensure perfect complex font ligature shaping in client-generated PDFs.
+ */
 export function rasterizeIndicText(
   text: string,
   fontSizePx = 14,
   fontFamily = 'Noto Sans Telugu, Noto Sans Devanagari, sans-serif'
-): string {
-  if (typeof document === 'undefined') return '';
+): RasterizedText {
+  if (typeof document === 'undefined') return { dataUrl: '', widthPt: 0, heightPt: 0 };
   const canvas = document.createElement('canvas');
   const ctx = canvas.getContext('2d');
-  if (!ctx) return '';
+  if (!ctx) return { dataUrl: '', widthPt: 0, heightPt: 0 };
 
   const dpr = 2; // High DPI for crisp rendering
   ctx.font = `600 ${fontSizePx * dpr}px ${fontFamily}`;
@@ -31,11 +52,21 @@ export function rasterizeIndicText(
   canvas.height = Math.ceil(fontSizePx * 1.8 * dpr);
 
   ctx.font = `600 ${fontSizePx * dpr}px ${fontFamily}`;
-  ctx.fillStyle = '#111827';
+  let textColor = '#0F172A';
+  try {
+    const computed = getComputedStyle(document.documentElement).getPropertyValue('--color-text-primary').trim();
+    if (computed) textColor = computed;
+  } catch {
+    // fallback
+  }
+  ctx.fillStyle = textColor;
   ctx.textBaseline = 'middle';
   ctx.fillText(text, 10 * dpr, canvas.height / 2);
 
-  return canvas.toDataURL('image/png');
+  const widthPt = canvas.width / dpr;
+  const heightPt = canvas.height / dpr;
+
+  return { dataUrl: canvas.toDataURL('image/png'), widthPt, heightPt };
 }
 
 /**
@@ -150,17 +181,21 @@ export async function generateReportPdf(
   doc.setFont('Helvetica', 'normal');
   doc.setFontSize(9.5);
   doc.setTextColor(51, 65, 85);
-  const summaryLines = doc.splitTextToSize(report.summary, pageWidth - 72);
+  const summaryClean = cleanPdfText(report.summary);
+  const summaryLines = doc.splitTextToSize(summaryClean, pageWidth - 72);
   doc.text(summaryLines, 36, y);
   y += summaryLines.length * 13 + 12;
 
   // Telugu / Multilingual Section Demonstration (Rasterized if present)
   const teluguExcerpt = 'లూజ్ కనెక్షన్లు గమనించబడ్డాయి (Loose connections verified on site)';
   if (containsIndicScript(teluguExcerpt)) {
-    const dataUrl = rasterizeIndicText(teluguExcerpt, 13);
-    if (dataUrl) {
-      doc.addImage(dataUrl, 'PNG', 36, y, 320, 18);
-      y += 24;
+    const raster = rasterizeIndicText(teluguExcerpt, 13);
+    if (raster.dataUrl) {
+      const maxWidth = pageWidth - 72;
+      const displayWidth = Math.min(raster.widthPt, maxWidth);
+      const displayHeight = (raster.heightPt * displayWidth) / raster.widthPt;
+      doc.addImage(raster.dataUrl, 'PNG', 36, y, displayWidth, displayHeight);
+      y += Math.ceil(displayHeight) + 16;
     }
   }
 
@@ -178,13 +213,14 @@ export async function generateReportPdf(
     doc.setFont('Helvetica', 'bold');
     doc.setFontSize(9);
     doc.setTextColor(15, 23, 42);
-    doc.text(`[${finding.severity.toUpperCase()}] ${finding.category}`, 46, y + 12);
+    doc.text(`[${finding.severity.toUpperCase()}] ${cleanPdfText(finding.category)}`, 46, y + 12);
 
     doc.setFont('Helvetica', 'normal');
     doc.setFontSize(8.5);
     doc.setTextColor(71, 85, 105);
-    const findingLines = doc.splitTextToSize(finding.text, pageWidth - 100);
-    doc.text(findingLines[0] || finding.text, 46, y + 22);
+    const cleanedFindingText = cleanPdfText(finding.text);
+    const findingLines = doc.splitTextToSize(cleanedFindingText, pageWidth - 100);
+    doc.text(findingLines[0] || cleanedFindingText, 46, y + 22);
 
     y += 34;
   }
@@ -206,7 +242,7 @@ export async function generateReportPdf(
     doc.setFont('Helvetica', 'bold');
     doc.setFontSize(9);
     doc.setTextColor(15, 23, 42);
-    doc.text(`• ${act.title}`, 46, y + 12);
+    doc.text(`• ${cleanPdfText(act.title)}`, 46, y + 12);
 
     doc.setFont('Helvetica', 'normal');
     doc.setFontSize(8);
@@ -283,7 +319,7 @@ export async function generateReportPdf(
   doc.setTextColor(100, 116, 139);
   doc.text(`Hash: ${lastHash?.substring(0, 32)}...`, pageWidth - 260, y + 22);
   doc.text(`Timestamp: ${new Date().toISOString()}`, pageWidth - 260, y + 32);
-  doc.text('On-device Cryptographic Ledger ISO-19011', pageWidth - 260, y + 42);
+  doc.text('On-device Cryptographic Ledger Seal', pageWidth - 260, y + 42);
 
   const filename = `${report.title.toLowerCase().replace(/[^a-z0-9]/g, '-')}-${report.id}.pdf`;
   const blob = doc.output('blob');
@@ -363,8 +399,8 @@ export async function generateReportExcel(
   const wsAudit = XLSX.utils.aoa_to_sheet([auditHeaders, ...auditRows]);
   XLSX.utils.book_append_sheet(wb, wsAudit, 'Audit Ledger');
 
-  const outBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
-  const blob = new Blob([outBuffer], {
+  const buf = XLSX.write(wb, { type: 'array', bookType: 'xlsx' });
+  const blob = new Blob([buf], {
     type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
   });
   const filename = `${report.title.toLowerCase().replace(/[^a-z0-9]/g, '-')}-${report.id}.xlsx`;
@@ -373,75 +409,96 @@ export async function generateReportExcel(
 }
 
 /**
- * Generates a clean CSV file
+ * Generates an on-device CSV export
  */
-export async function generateReportCsv(report: Report): Promise<{ blob: Blob; filename: string }> {
-  const lines = [
-    'FIELDNOTE INSPECTION REPORT (CSV EXPORT)',
-    `Report ID,${report.id}`,
-    `Title,${JSON.stringify(report.title)}`,
-    `Category,${report.category || 'ELECTRICAL INSPECTION'}`,
-    `Site Name,${JSON.stringify(report.siteName)}`,
-    `Equipment / Panel ID,${report.panelId || 'PANEL-204'}`,
-    `Inspector,${JSON.stringify(report.inspector)}`,
-    `Created At,${report.createdAt}`,
-    `Priority,${report.priority}`,
-    `Priority Reason,${JSON.stringify(report.priorityReason || '')}`,
-    `Summary,${JSON.stringify(report.summary)}`,
-    '',
-    'FINDINGS',
-    'ID,Category,Severity,Confidence,Verified,Finding Text',
-    ...report.findings.map(
-      (f) =>
-        `${f.id},${JSON.stringify(f.category)},${f.severity},${f.confidence},${f.isVerified},${JSON.stringify(f.text)}`
-    ),
-    '',
-    'ACTION ITEMS',
-    'ID,Title,Assignee,Priority,Status,Due Date',
-    ...report.actions.map(
-      (a) =>
-        `${a.id},${JSON.stringify(a.title)},${JSON.stringify(a.assignee || '')},${a.priority},${a.status},${a.dueDate || ''}`
-    ),
-  ];
+export async function generateReportCsv(
+  report: Report,
+  _options: ExportOptions = {}
+): Promise<{ blob: Blob; filename: string }> {
+  const lines: string[] = [];
 
-  const blob = new Blob([lines.join('\n')], { type: 'text/csv;charset=utf-8;' });
+  lines.push(`Report ID,${report.id}`);
+  lines.push(`Title,"${report.title.replace(/"/g, '""')}"`);
+  lines.push(`Category,"${report.category || 'ELECTRICAL INSPECTION'}"`);
+  lines.push(`Site,"${report.siteName}"`);
+  lines.push(`Panel ID,"${report.panelId || 'PANEL-204'}"`);
+  lines.push(`Inspector,"${report.inspector}"`);
+  lines.push(`Priority,${report.priority.toUpperCase()}`);
+  lines.push(`Summary,"${report.summary.replace(/"/g, '""')}"`);
+  lines.push('');
+
+  lines.push('FINDINGS');
+  lines.push('ID,Category,Severity,Confidence,Verified,Occurrences,Text');
+  for (const f of report.findings) {
+    lines.push(
+      `"${f.id}","${f.category}","${f.severity}",${f.confidence},${f.isVerified ? 'YES' : 'NO'},${f.occurrences || 1},"${f.text.replace(/"/g, '""')}"`
+    );
+  }
+  lines.push('');
+
+  lines.push('ACTION ITEMS');
+  lines.push('ID,Title,Assignee,Priority,Status,Due Date,Completed');
+  for (const a of report.actions) {
+    lines.push(
+      `"${a.id}","${a.title.replace(/"/g, '""')}","${a.assignee || 'Unassigned'}","${a.priority}","${a.status}","${a.dueDate || ''}",${a.isCompleted ? 'YES' : 'NO'}`
+    );
+  }
+
+  const csvContent = lines.join('\n');
+  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8' });
   const filename = `${report.title.toLowerCase().replace(/[^a-z0-9]/g, '-')}-${report.id}.csv`;
+
   return { blob, filename };
 }
 
 /**
- * Generates formatted JSON data package
+ * Generates an on-device JSON export with complete cryptographic metadata
  */
-export async function generateReportJson(report: Report): Promise<{ blob: Blob; filename: string }> {
-  const data = {
-    app: 'FieldNote PWA',
-    version: '1.0.0',
+export async function generateReportJson(
+  report: Report,
+  _options: ExportOptions = {}
+): Promise<{ blob: Blob; filename: string }> {
+  const exportPayload = {
+    schemaVersion: '1.0.0',
     exportedAt: new Date().toISOString(),
+    generator: 'FieldNote PWA On-Device Engine',
     report,
+    ledger: {
+      blockCount: report.editHistory.length,
+      headHash:
+        report.editHistory.length > 0
+          ? report.editHistory[report.editHistory.length - 1]?.hash
+          : 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855',
+    },
   };
-  const jsonStr = JSON.stringify(data, null, 2);
+
+  const jsonStr = JSON.stringify(exportPayload, null, 2);
   const blob = new Blob([jsonStr], { type: 'application/json' });
   const filename = `${report.title.toLowerCase().replace(/[^a-z0-9]/g, '-')}-${report.id}.json`;
+
   return { blob, filename };
 }
 
 /**
- * Generates ASCII Plain Text report
+ * Generates a clean plain text inspection report
  */
-export async function generateReportText(report: Report): Promise<{ blob: Blob; filename: string }> {
+export async function generateReportText(
+  report: Report,
+  _options: ExportOptions = {}
+): Promise<{ blob: Blob; filename: string }> {
   const text = `
 ================================================================================
-FIELDNOTE INSPECTION DOSSIER
+FIELDNOTE INSPECTION DOSSIER: ${report.title.toUpperCase()}
 ================================================================================
-Report ID : ${report.id}
-Category  : ${report.category || 'ELECTRICAL INSPECTION'}
-Title     : ${report.title}
-Site      : ${report.siteName}
-Asset ID  : ${report.panelId || 'PANEL-204'}
-Inspector : ${report.inspector}
-Date      : ${new Date(report.createdAt).toLocaleString()}
-Priority  : ${report.priority.toUpperCase()} (${report.priorityReason || 'None'})
-Deadline  : ${report.deadline || 'Immediate'}
+Report ID:     ${report.id}
+Category:      ${report.category || 'ELECTRICAL INSPECTION'}
+Site Name:     ${report.siteName}
+Panel / Asset: ${report.panelId || 'PANEL-204'}
+Inspector:     ${report.inspector}
+Date Created:  ${new Date(report.createdAt).toLocaleString()}
+Priority:      ${report.priority.toUpperCase()} (${report.priorityReason || 'Standard'})
+Deadline:      ${report.deadline || 'N/A'}
+GPS Geofence:  ${report.geo ? `${report.geo.latitude}, ${report.geo.longitude}` : 'Manual'}
 
 EXECUTIVE SUMMARY:
 ${report.summary}
@@ -454,7 +511,7 @@ ${report.actions.map((a, i) => `  ${i + 1}. [${a.isCompleted ? 'DONE' : 'TODO'}]
 
 CRYPTOGRAPHIC SEAL:
   Latest Block Hash: ${report.editHistory[report.editHistory.length - 1]?.hash || 'GENESIS'}
-  Verification: On-device immutable ledger ISO-19011 compliant
+  Verification: On-device immutable ledger seal verified
 ================================================================================
 `.trim();
 

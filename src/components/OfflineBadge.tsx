@@ -1,12 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { ShieldCheck, CloudLightning, WifiOff, Globe } from 'lucide-react';
-import { useSettingsStore } from '../lib/settings';
+import { ShieldCheck, WifiOff, Globe } from 'lucide-react';
 
 export const OfflineBadge: React.FC = () => {
   const [isOnline, setIsOnline] = useState<boolean>(
     typeof navigator !== 'undefined' ? navigator.onLine : true
   );
-  const useOnlineSpeech = useSettingsStore((s) => s.speech.useOnlineSpeech);
 
   useEffect(() => {
     const handleOnline = () => setIsOnline(true);
@@ -20,18 +18,6 @@ export const OfflineBadge: React.FC = () => {
       window.removeEventListener('offline', handleOffline);
     };
   }, []);
-
-  if (useOnlineSpeech && isOnline) {
-    return (
-      <div 
-        className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-metadata font-medium bg-semantic-amber-surface text-semantic-amber-text border border-semantic-amber-border select-none transition-colors"
-        title="Online Speech is enabled and uses your browser's external speech service"
-      >
-        <CloudLightning className="w-3.5 h-3.5 animate-pulse" />
-        <span>Online Speech Active</span>
-      </div>
-    );
-  }
 
   if (!isOnline) {
     return (

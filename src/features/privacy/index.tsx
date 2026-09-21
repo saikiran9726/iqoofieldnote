@@ -47,15 +47,16 @@ export const PrivacyScreen: React.FC = () => {
         <div className="flex items-center justify-between pb-3 border-b border-border-subtle">
           <div className="space-y-0.5">
             <div className="flex items-center gap-2">
-              <Fingerprint className="w-4 h-4 text-semantic-green" />
+              <Fingerprint className="w-4 h-4 text-semantic-amber" />
               <h3 className="text-body-sm font-bold text-text-primary">
-                Biometric App Lock
+                Biometric App Lock (Simulated)
               </h3>
+              <span className="px-1.5 py-0.5 rounded text-[10px] font-mono font-semibold uppercase bg-semantic-amber-surface text-semantic-amber-text border border-semantic-amber-border">
+                Simulated
+              </span>
             </div>
             <p className="text-metadata text-text-muted">
-              {hasWebAuthn
-                ? 'WebAuthn hardware authenticator detected (Fingerprint / Windows Hello / Touch ID).'
-                : 'WebAuthn hardware is not available on this platform — Biometric simulation enabled.'}
+              Simulated biometric security toggle for UI/UX testing. Hardware platform biometrics are not wired in this build.
             </p>
           </div>
 
