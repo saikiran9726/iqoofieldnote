@@ -1,11 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { Plus, ArrowLeft } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { EmptyState, AssetCard, Button } from '../../components';
 import type { Asset } from '../../shared/types';
 import { db, resetDemoData } from '../../data/db';
 
+export { AssetDetailScreen } from './AssetDetail';
+
 export const AssetsScreen: React.FC = () => {
+  const navigate = useNavigate();
   const [assets, setAssets] = useState<Asset[]>([]);
 
   const loadAssets = async () => {
@@ -67,7 +70,7 @@ export const AssetsScreen: React.FC = () => {
               key={asset.id}
               asset={asset}
               onClick={() => {
-                alert(`Asset Details: ${asset.tagId} (${asset.name})\nIssues recorded: ${asset.issueHistory.length}`);
+                navigate(`/assets/${asset.tagId}`);
               }}
             />
           ))}

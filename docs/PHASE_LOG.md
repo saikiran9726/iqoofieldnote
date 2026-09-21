@@ -191,6 +191,61 @@
 2. In Phase 3, the "Add to report" action opens an attachment bottom sheet indicating future Phase 5 sub-module integrations without dead buttons.
 
 ### Known Gaps
-- None for Phase 3. Subsequent Phase 4 will implement the full Reports List with multi-filter pills, search indexing, and bulk actions.
+- None for Phase 3.
+
+---
+
+## Phase 4: Export Sheet (PDF, Excel, CSV, JSON, Text), Tasks Screen, Asset History, Demo Mode, and Offline E2E
+
+### What Was Done
+- **Export Sheet & On-Device Generation Engines (`src/lib/exportEngine.ts` & `src/components/ExportSheet.tsx`)**:
+  - **Real PDF Generation (`generateReportPdf`)**:
+    - Generates on-device ISO-19011 compliant PDF using `jsPDF`.
+    - Pure vector Latin text for crisp readability and searchable text runs.
+    - High-DPI canvas rasterization (`rasterizeIndicText`) for complex Telugu and Devanagari script shaping per Rule 7(b).
+    - Includes official header banner, priority alert badge, site metadata grid, GPS geofence, findings list, checkable action items, attached photographic evidence tags, certified inspector signature bitmap, and SHA-256 cryptographic seal.
+    - Verified real PDF file download (`electrical-inspection---substation-panel-audit-rep-hero-001.pdf`, 176 KB).
+  - **Real Multi-Sheet Excel Workbook (`generateReportExcel`)**:
+    - Generates on-device `.xlsx` via `xlsx` (SheetJS) with 4 structured sheets: `Report Summary`, `Findings`, `Action Items`, and `Audit Ledger`.
+  - **CSV, JSON & Plain Text Exports**:
+    - Formatted `.csv`, `.json`, and ASCII plain text `.txt` exports with Web Share API (`navigator.share({ files: [...] })`) and download fallbacks.
+  - **Export Options Modal**:
+    - Toggles for Photos, GPS Coordinates, Timestamp & Hash Seal, and Inspector Signature.
+- **Tasks Screen & Action Items (`src/features/tasks/index.tsx`)**:
+  - Organized punch lists into **OPEN** and **COMPLETED** groups with task counters.
+  - Action items extracted from reports sync directly to IndexedDB.
+  - Checkable completion toggling status between `todo` and `done`.
+  - Add Action Item form with title, assignee, and priority tier (`critical`, `high`, `medium`, `low`).
+  - Native browser `Notification` API reminder integration with permission handling and graceful in-app alert fallbacks.
+- **Asset Page & Related Issues Timeline (`src/features/assets/AssetDetail.tsx` & `/assets/:id`)**:
+  - Detailed equipment record for `PANEL-204` (`Main Substation Distribution Panel 204`).
+  - **Recurring Issue Spotlight**: Flagged 3 occurrences of loose connection hazards across 4 linked inspection audits, last reported 18 Sep 2026 11:42 AM.
+  - Metrics summary grid: 4 linked reports, 3 recurring hazards, primary site location, 100% verified ledger seal.
+  - Chronological audit timeline presenting all 4 historical inspection dossiers with direct navigation links to `/reports/:id`.
+  - Direct deep linking from `ReportDetailScreen` (when `report.panelId` is present) to `/assets/${report.panelId}`.
+- **Reports List Screen (`src/features/reports/index.tsx`)**:
+  - Live full-text search across report titles, categories, site names, findings, summaries, and panel IDs.
+  - Filter chips: `ALL DOSSIERS`, `HIGH PRIORITY`, `IN REVIEW`, `VERIFIED`, `KUKATPALLY`, `MIYAPUR`, `GACHIBOWLI`.
+  - Direct resolution of missing Panel ID via sliding `QuestionCard` banner.
+- **9-Step Scripted Demo Mode (`src/components/DemoTour.tsx`)**:
+  - 100% offline demonstration tour requiring zero network, microphone, or external model dependencies.
+  - Triggered via:
+    1. Long-press (500ms) on `FIELDNOTE` logo in `TopBar` (with haptic feedback).
+    2. Floating `DEMO TOUR` trigger button.
+    3. Setting toggle / quick launch in `More` screen (`/more`).
+  - Stepper controls (`Step 1` through `Step 9`), Next/Prev buttons, and `Reset Data` button calling `resetDemoData()`.
+- **Quality & E2E Verification**:
+  - `npm test`: Passed (13/13 unit tests across 4 suites).
+  - `npm run typecheck`: Passed (0 errors).
+  - `npm run lint`: Passed (0 warnings, 0 errors).
+  - `npm run build`: Passed (0 errors, 36 precached PWA entries).
+  - `npm run test:e2e`: Passed — Automated Playwright runner executed in strict offline mode (`context.setOffline(true)`), stepped through all 9 demo steps, verified real PDF download event and file generation, validated Tasks open/completed groups, verified PANEL-204 recurring issues timeline, verified search and filters, and captured 16 screenshots into `docs/screens/phase-4/` with 0 console errors.
+
+### Assumptions Logged
+1. Indic script rasterization uses an internal canvas context rendering `@fontsource/noto-sans-telugu` at 2x device pixel ratio to embed crisp PNG text runs within the jsPDF vector stream.
+2. The Playwright E2E runner activates `context.setOffline(true)` to guarantee that all 9 demo tour steps, IndexedDB queries, and PDF exports run with zero external network connectivity.
+
+### Known Gaps
+- None for Phase 4. Subsequent Phase 5 will implement full Batch Photo Capture, Audio/CSV/JSON Import Hub, QR Code Scanner, and Bulk Actions.
 
 

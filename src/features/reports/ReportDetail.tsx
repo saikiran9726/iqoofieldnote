@@ -16,6 +16,8 @@ import {
   RefreshCw,
   Eye,
   SlidersHorizontal,
+  Repeat,
+  ChevronRight,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -344,6 +346,31 @@ export const ReportDetailScreen: React.FC = () => {
                 />
               )}
             </AnimatePresence>
+
+            {/* Linked Asset History Spotlight */}
+            {report.panelId && (
+              <button
+                type="button"
+                onClick={() => navigate(`/assets/${report.panelId}`)}
+                className="w-full flex items-center justify-between p-3.5 rounded-xl bg-bg-surface2 hover:bg-bg-hover border border-border-default hover:border-semantic-green transition-all text-left group"
+              >
+                <div className="flex items-center gap-2.5 text-text-primary min-w-0">
+                  <Repeat className="w-4 h-4 text-semantic-amber shrink-0" />
+                  <span className="text-body-xs font-medium truncate">
+                    Linked Asset: <strong className="font-mono text-semantic-green">{report.panelId}</strong>
+                    {report.panelId.toUpperCase().includes('204') && (
+                      <span className="text-semantic-amber-text ml-1 font-semibold">
+                        · 3 recurring loose connections flagged
+                      </span>
+                    )}
+                  </span>
+                </div>
+                <span className="text-semantic-green font-semibold flex items-center gap-1 text-metadata-xs group-hover:translate-x-0.5 transition-transform shrink-0">
+                  <span>View Asset History</span>
+                  <ChevronRight className="w-3.5 h-3.5" />
+                </span>
+              </button>
+            )}
 
             {/* Tamper-Evident SHA-256 Ledger Seal */}
             <div

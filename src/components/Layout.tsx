@@ -2,6 +2,7 @@ import React from 'react';
 import { Outlet, NavLink, useLocation } from 'react-router-dom';
 import { TopBar } from './TopBar';
 import { BottomNav } from './BottomNav';
+import { DemoTour } from './DemoTour';
 import { navItems } from './navigation';
 import { Activity, ShieldCheck, Database } from 'lucide-react';
 
@@ -126,6 +127,9 @@ export const Layout: React.FC = () => {
 
       {/* Mobile Bottom Navigation Bar */}
       <BottomNav />
+
+      {/* Offline 9-Step Demo Tour Controller */}
+      <DemoTour />
     </div>
   );
 };

@@ -9,7 +9,7 @@ import { ReportsScreen } from './features/reports';
 import { ReportDetailScreen } from './features/reports/ReportDetail';
 import { TasksScreen } from './features/tasks';
 import { MoreScreen } from './features/more';
-import { AssetsScreen } from './features/assets';
+import { AssetsScreen, AssetDetailScreen } from './features/assets';
 import { RollupScreen } from './features/rollup';
 import { PrivacyScreen } from './features/privacy';
 import { OfficeKitScreen } from './features/officekit';
@@ -40,6 +40,7 @@ export const App: React.FC = () => {
           <Route path="/tasks" element={<TasksScreen />} />
           <Route path="/more" element={<MoreScreen />} />
           <Route path="/assets" element={<AssetsScreen />} />
+          <Route path="/assets/:id" element={<AssetDetailScreen />} />
           <Route path="/rollup" element={<RollupScreen />} />
           <Route path="/privacy" element={<PrivacyScreen />} />
           <Route path="/officekit" element={<OfficeKitScreen />} />

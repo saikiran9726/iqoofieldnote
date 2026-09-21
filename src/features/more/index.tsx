@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
   Database,
@@ -13,11 +13,35 @@ import {
   Volume2,
   Cpu,
   Globe2,
+  Sparkles,
+  RotateCcw,
+  Check,
 } from 'lucide-react';
-import { useSettingsStore } from '../../lib/settings';
+import { useSettingsStore } from '../../lib/stores';
+import { resetDemoData } from '../../data/db';
+import { Button } from '../../components';
 
 export const MoreScreen: React.FC = () => {
-  const { speech, setUseOnlineSpeech, setLanguage, setVolumeButtonTrigger } = useSettingsStore();
+  const {
+    settings,
+    setEngineKind,
+    setUseOnlineSpeech,
+    setPreferredLanguage,
+    setVolumeButtonTrigger,
+  } = useSettingsStore();
+
+  const [resetSuccess, setResetSuccess] = useState<boolean>(false);
+
+  const handleResetData = async () => {
+    await resetDemoData();
+    setResetSuccess(true);
+    setTimeout(() => setResetSuccess(false), 3000);
+  };
+
+  const handleLaunchTour = () => {
+    const btn = document.getElementById('demo-tour-toggle');
+    if (btn) btn.click();
+  };
 
   const moduleCards = [
     {
@@ -65,12 +89,12 @@ export const MoreScreen: React.FC = () => {
   ];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 max-w-4xl mx-auto pb-16">
       {/* Overview section */}
       <div>
-        <h2 className="text-heading-sm font-bold text-text-primary">
+        <h1 className="text-heading-sm font-bold text-text-primary">
           Field Intelligence Modules
-        </h2>
+        </h1>
         <p className="text-metadata text-text-muted mt-0.5">
           Specialized offline tools for assets, reporting, security, and exports
         </p>
@@ -113,14 +137,78 @@ export const MoreScreen: React.FC = () => {
 
       {/* Settings & System Transparency */}
       <div className="p-5 rounded-2xl bg-bg-surface1 border border-border-default space-y-5 transition-colors">
-        <div className="flex items-center gap-2 pb-3 border-b border-border-subtle">
-          <Settings className="w-4 h-4 text-semantic-green" />
-          <h3 className="text-body-md font-bold text-text-primary">
-            Settings & System Constraints
-          </h3>
+        <div className="flex items-center justify-between pb-3 border-b border-border-subtle">
+          <div className="flex items-center gap-2">
+            <Settings className="w-4 h-4 text-semantic-green" />
+            <h2 className="text-body-md font-bold text-text-primary">
+              Settings & Intelligence Engine
+            </h2>
+          </div>
+
+          <Button
+            size="sm"
+            variant="secondary"
+            icon={Sparkles}
+            onClick={handleLaunchTour}
+          >
+            Launch Demo Tour
+          </Button>
         </div>
 
-        {/* Setting 1: Speech Service (Honest Web Speech API notice per Rule 7a) */}
+        {/* Setting: Demo Engine Mode */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 rounded-xl bg-bg-surface2/60 border border-border-subtle">
+          <div className="space-y-0.5 max-w-lg">
+            <div className="flex items-center gap-2">
+              <Cpu className="w-4 h-4 text-semantic-green" />
+              <span className="text-body-sm font-semibold text-text-primary">
+                Intelligence Engine Mode
+              </span>
+            </div>
+            <p className="text-metadata text-text-muted leading-relaxed">
+              Toggle between Simulated Seed Engine (for offline demonstrations & testing) and On-Device WebGPU/WASM pipeline.
+            </p>
+          </div>
+
+          <div className="flex items-center gap-2 shrink-0">
+            <button
+              type="button"
+              onClick={() => setEngineKind(settings.engineKind === 'simulated' ? 'on-device' : 'simulated')}
+              className={`px-3 py-1.5 rounded-lg text-metadata-xs font-mono font-bold border transition-all ${
+                settings.engineKind === 'simulated'
+                  ? 'bg-semantic-amber-surface text-semantic-amber-text border-semantic-amber-border'
+                  : 'bg-semantic-green-surface text-semantic-green-text border-semantic-green-border'
+              }`}
+            >
+              {settings.engineKind === 'simulated' ? 'Simulated Engine' : 'On-Device WebGPU'}
+            </button>
+          </div>
+        </div>
+
+        {/* Setting: Reset Demo Database */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 rounded-xl bg-bg-surface2/60 border border-border-subtle">
+          <div className="space-y-0.5 max-w-lg">
+            <div className="flex items-center gap-2">
+              <RotateCcw className="w-4 h-4 text-semantic-amber" />
+              <span className="text-body-sm font-semibold text-text-primary">
+                Reset Demo Database
+              </span>
+            </div>
+            <p className="text-metadata text-text-muted leading-relaxed">
+              Restore all IndexedDB tables (11 field reports, PANEL-204 asset records, and punch lists) to default seed values.
+            </p>
+          </div>
+
+          <Button
+            size="sm"
+            variant="secondary"
+            icon={resetSuccess ? Check : RotateCcw}
+            onClick={handleResetData}
+          >
+            {resetSuccess ? 'Data Reset Complete' : 'Reset Demo Data'}
+          </Button>
+        </div>
+
+        {/* Setting 1: Speech Service */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 rounded-xl bg-bg-surface2/60 border border-border-subtle">
           <div className="space-y-0.5 max-w-lg">
             <div className="flex items-center gap-2">
@@ -138,7 +226,7 @@ export const MoreScreen: React.FC = () => {
             <input
               id="online-speech-toggle"
               type="checkbox"
-              checked={speech.useOnlineSpeech}
+              checked={settings.useOnlineSpeech}
               onChange={(e) => setUseOnlineSpeech(e.target.checked)}
               className="sr-only peer"
             />
@@ -161,8 +249,8 @@ export const MoreScreen: React.FC = () => {
           </div>
 
           <select
-            value={speech.preferredLanguage}
-            onChange={(e) => setLanguage(e.target.value as 'en-US' | 'te-IN' | 'hi-IN')}
+            value={settings.preferredLanguage}
+            onChange={(e) => setPreferredLanguage(e.target.value as 'en-US' | 'te-IN' | 'hi-IN')}
             className="px-3 py-1.5 rounded-lg bg-bg-surface1 border border-border-default text-text-primary text-metadata font-medium focus:outline-none focus:border-semantic-green"
           >
             <option value="en-US">English (Latin)</option>
@@ -189,7 +277,7 @@ export const MoreScreen: React.FC = () => {
             <input
               id="volume-trigger-toggle"
               type="checkbox"
-              checked={speech.volumeButtonTrigger}
+              checked={settings.volumeButtonTrigger}
               onChange={(e) => setVolumeButtonTrigger(e.target.checked)}
               className="sr-only peer"
             />

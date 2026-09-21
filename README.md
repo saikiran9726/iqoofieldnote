@@ -21,7 +21,7 @@ npm run dev
 
 ### Production Build & Preview
 ```bash
-# Type check and build bundle
+# Type check and build production bundle
 npm run build
 
 # Preview production build locally with service worker
@@ -30,13 +30,16 @@ npm run preview
 
 ### Quality & Test Suite
 ```bash
-# Typecheck
+# Unit test suite (vitest)
+npm test
+
+# Typecheck (tsc --noEmit)
 npm run typecheck
 
 # Lint (zero warnings allowed)
 npm run lint
 
-# Screenshot verification
+# Offline Playwright E2E verification & screenshot generation
 npm run test:e2e
 ```
 
@@ -54,28 +57,46 @@ FieldNote is a 100% client-side Progressive Web Application and can be hosted on
 
 ## Demo Mode
 
-To explore FieldNote's offline capabilities without configuring real field hardware:
-1. Open the **Capture** tab (`/capture`) and click **"Voice Memo"** to record an audio capture or click **"Sample"** to load pre-formatted field observations.
-2. Open the **Reports** tab (`/reports`) to inspect auto-compiled field dossiers and site audits.
-3. Open the **Tasks** tab (`/tasks`) to filter and complete extracted punch-list items.
-4. Open the **More** tab (`/more`) to explore Asset tracking, Rollup telemetry, OfficeKit Indic canvas shaper, Privacy cryptographic vault, and Export tools.
-5. Use the **Theme Toggle** in the top bar to switch between Dark (`#090B0D`), Daylight (high-contrast WCAG AA+), and System mode.
+FieldNote includes an offline-first **9-Step Demo Mode** that allows end-to-end evaluation of all field capture and reporting workflows with zero external network, microphone, or model dependencies:
+
+### How to Trigger Demo Mode
+1. **Long-Press TopBar Logo**: Press and hold the `FIELDNOTE` logo or title in the top navigation bar for **500ms** (provides haptic feedback).
+2. **Demo Tour HUD**: Click the green **"DEMO TOUR"** floating trigger in the bottom right of the screen.
+3. **Settings Toggle**: Go to **More** (`/more`) &rarr; click **"Launch Demo Tour"** or toggle **"Simulated Engine"**.
+
+### The 9-Step Scripted Tour
+1. **Capture Home (`/capture`)**: Central dominant mic button with offline badge and Daylight mode quick-toggle.
+2. **Live Audio Recording**: Real frequency analyzer waveform, noise meter, and real-time Telugu + English code-mixed transcript stream.
+3. **Staggered Processing Pipeline**: 4-stage pipeline animation (*Listening* &rarr; *Extracting* &rarr; *Verifying* &rarr; *Building Report*).
+4. **Structured Report Editor (`/reports/rep-hero-001`)**: Auto-compiled field dossier with confidence breakdown bars (Category 97%, Findings 94%, Deadline 81%) and inline tap-to-edit with undo history.
+5. **Missing Entity Resolution (`QuestionCard`)**: Sliding amber prompt resolving missing Panel ID to `PANEL-204` (sets field amber &rarr; green).
+6. **Photographic Evidence & Inspector Seal**: Attached photo evidence and ISO-19011 cryptographic sign-off seal.
+7. **Real On-Device PDF Export**: Generates an authentic ISO-compliant PDF with pure vector Latin text, canvas-rasterized Telugu font ligature shaping, and SHA-256 seal.
+8. **Tasks & Action Items (`/tasks`)**: Extracted remediation punch list organized into OPEN and COMPLETED groups with reminder notifications.
+9. **PANEL-204 Asset History (`/assets/PANEL-204`)**: Equipment dossier tracking 4 linked reports and a 3x recurring loose connection hazard timeline.
+
+### Reset Demo Data
+- Click **"Reset Data"** in the Demo Tour panel or **"Reset Demo Data"** in Reports / More settings to restore all IndexedDB tables (11 field reports, PANEL-204 asset records, and punch lists) to initial seed values.
 
 ---
 
-## Real vs Simulated
+## Real vs Simulated Breakdown
 
 In strict compliance with standing rules and system transparency:
 
 | Feature / Subsystem | Implementation Status | Technical Details |
 | :--- | :--- | :--- |
 | **Offline Core & DB** | **Real** | IndexedDB storage powered by Dexie.js. Zero runtime network dependencies. |
+| **On-Device PDF Export** | **Real** | Generated in-browser via `jsPDF`. Pure vector Latin text + high-DPI canvas-rasterized Indic text (`Noto Sans Telugu` / `Noto Sans Devanagari`) for accurate ligature shaping. |
+| **Multi-Sheet Excel (.xlsx)** | **Real** | Generated on-device via `xlsx` (SheetJS) with Summary, Findings, Actions, and Audit Trail sheets. |
+| **CSV, JSON, Plain Text Exports** | **Real** | Real on-device blob generators with Web Share API and download fallbacks. |
+| **Cryptographic SHA-256 Hash Chain** | **Real** | Tamper-evident ledger computed via Web Crypto `SubtleCrypto` (`hash = SHA256(prevHash + canonicalJson)`). Detects field mutations instantly. |
+| **Audio Recorder & Waveform** | **Real** | `navigator.mediaDevices.getUserMedia` + `MediaRecorder` + `AudioContext` `AnalyserNode` with RMS noise floor classification. Headless mock fallback for CI. |
+| **Notification API Reminders** | **Real** | Native browser `Notification` API with permission handling and graceful in-app alert fallback. |
 | **Design Tokens & Daylight Mode** | **Real** | Strict token system in `src/design/tokens.ts` with CSS variables. High-contrast WCAG AA+ palette. |
 | **PWA & Offline Precaching** | **Real** | Full asset precaching via `vite-plugin-pwa` (Workbox) including self-hosted fonts. |
-| **Self-Hosted Typography** | **Real** | `@fontsource` packages for Inter, JetBrains Mono, Noto Sans Telugu, and Noto Sans Devanagari. No Google Fonts or runtime CDN requests. |
-| **Indic Canvas Font Shaping** | **Real** | HTML5 2D Canvas HarfBuzz text rasterizer for accurate Telugu/Devanagari rendering alongside vector Latin text. |
+| **Self-Hosted Typography** | **Real** | `@fontsource` packages for Inter, JetBrains Mono, Noto Sans Telugu, and Noto Sans Devanagari. No external Google Fonts or runtime CDN requests. |
 | **Web Speech API** | **Real & Optional** | Off by default per Rule 7a. When enabled, uses browser speech service and updates status badge. |
-| **WebAuthn Biometrics** | **Real / Simulated Fallback** | Uses `navigator.credentials` / WebAuthn when supported; falls back to honest simulated toggle when hardware is unavailable. |
+| **WebAuthn Biometrics** | **Real / Simulated Fallback** | Uses `navigator.credentials` / WebAuthn when supported; falls back to simulated biometric toggle when hardware is unavailable. |
 | **Volume-Button Trigger** | **Real Foreground Listener** | Keydown handler active when PWA is in foreground. Transparently discloses browser background limitations. |
-| **Web Share Target** | **Real PWA Manifest** | Manifest declaration configured. Discloses requirement for installed Android PWA. |
 | **On-Device Machine Learning** | **Real WebGPU / WASM** | Runs via WebGPU / WASM SIMD. Does not claim proprietary mobile NPU access (Rule 7f). |
