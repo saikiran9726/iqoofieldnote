@@ -147,7 +147,7 @@ export interface Transcript {
 
 export interface TemplateField {
   name: string;
-  type: 'text' | 'number' | 'boolean' | 'select';
+  type: 'text' | 'number' | 'boolean' | 'select' | 'date';
   required: boolean;
   defaultConfidenceThreshold?: number;
 }
@@ -166,6 +166,7 @@ export interface GlossaryEntry {
   language: string;
   definition: string;
   expansion?: string;
+  category?: 'site' | 'asset' | 'person' | 'term';
 }
 
 export interface SyncOutboxItem {
@@ -186,6 +187,10 @@ export interface AppSettings {
   preferredLanguage: 'en-US' | 'te-IN' | 'hi-IN';
   volumeButtonTrigger: boolean;
   useOnlineSpeech: boolean; // default false
+  privacyModeRedaction?: boolean;
+  passcode?: string;
+  biometricEnabled?: boolean;
+  encryptionActive?: boolean;
 }
 
 // Legacy compatibility aliases

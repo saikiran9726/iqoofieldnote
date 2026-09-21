@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { ShieldCheck, WifiOff, Globe } from 'lucide-react';
+import { useTranslation } from '../lib/i18n';
 
 export const OfflineBadge: React.FC = () => {
+  const { t } = useTranslation();
   const [isOnline, setIsOnline] = useState<boolean>(
     typeof navigator !== 'undefined' ? navigator.onLine : true
   );
@@ -38,7 +40,7 @@ export const OfflineBadge: React.FC = () => {
     >
       <ShieldCheck className="w-3.5 h-3.5 text-semantic-green" />
       <span className="flex items-center gap-1">
-        <span>Offline Core</span>
+        <span>{t('offlineStatus')}</span>
         <Globe className="w-3 h-3 text-text-muted opacity-60" />
       </span>
     </div>

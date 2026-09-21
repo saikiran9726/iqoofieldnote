@@ -1,32 +1,34 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
-  Database,
   Activity,
+  Laptop,
   ShieldCheck,
-  FileSpreadsheet,
-  Download,
+  Layers,
+  Info,
+  Database,
   Search,
+  Download,
   Settings,
   ChevronRight,
-  CloudLightning,
-  Volume2,
-  Cpu,
+  Sun,
+  Moon,
   Globe2,
   Sparkles,
   RotateCcw,
   Check,
+  Cpu,
 } from 'lucide-react';
 import { useSettingsStore } from '../../lib/stores';
+import { useThemeStore } from '../../lib/theme';
 import { resetDemoData } from '../../data/db';
+import { useTranslation, type SupportedLanguage } from '../../lib/i18n';
 import { Button } from '../../components';
 
 export const MoreScreen: React.FC = () => {
-  const {
-    settings,
-    setPreferredLanguage,
-  } = useSettingsStore();
-
+  const { t, language } = useTranslation();
+  const setPreferredLanguage = useSettingsStore((s) => s.setPreferredLanguage);
+  const { resolvedTheme, toggleTheme } = useThemeStore();
   const [resetSuccess, setResetSuccess] = useState<boolean>(false);
 
   const handleResetData = async () => {
@@ -40,34 +42,56 @@ export const MoreScreen: React.FC = () => {
     if (btn) btn.click();
   };
 
+  // Feature Modules (Every More entry opens a real screen per Phase 6 Spec)
   const moduleCards = [
     {
-      to: '/assets',
-      title: 'Asset Inventory',
-      description: 'Equipment tags, QR codes, maintenance timelines & geo-locations',
-      icon: Database,
-      badge: 'Local DB',
-    },
-    {
       to: '/rollup',
-      title: 'Site Rollup & Telemetry',
-      description: 'Cross-site aggregate metrics, hazard frequency & audit rates',
+      title: t('weeklyRollup'),
+      description: t('weeklyRollupDesc'),
       icon: Activity,
-      badge: 'Analytics',
-    },
-    {
-      to: '/privacy',
-      title: 'Privacy & Cryptographic Vault',
-      description: 'WebAuthn biometric access, zero-cloud storage & emergency purge',
-      icon: ShieldCheck,
-      badge: 'Encrypted',
+      badge: 'Manager',
     },
     {
       to: '/officekit',
-      title: 'OfficeKit Documents',
-      description: 'Canvas-rasterized Indian script PDF export & document compiler',
-      icon: FileSpreadsheet,
-      badge: 'Offline PDF',
+      title: t('officeKit'),
+      description: t('officeKitDesc'),
+      icon: Laptop,
+      badge: 'Bridge',
+    },
+    {
+      to: '/privacy',
+      title: t('privacyTrust'),
+      description: t('privacyTrustDesc'),
+      icon: ShieldCheck,
+      badge: 'AES-GCM',
+    },
+    {
+      to: '/templates',
+      title: t('templatesGlossary'),
+      description: t('templatesGlossaryDesc'),
+      icon: Layers,
+      badge: 'Schemas',
+    },
+    {
+      to: '/about',
+      title: t('aboutApp'),
+      description: t('aboutAppDesc'),
+      icon: Info,
+      badge: 'v0.1.0',
+    },
+    {
+      to: '/assets',
+      title: 'Asset Inventory & Timeline',
+      description: 'Equipment tags, QR telemetry, maintenance logs & PANEL-204 history',
+      icon: Database,
+      badge: 'Assets',
+    },
+    {
+      to: '/search',
+      title: 'Ask Your Reports & Search',
+      description: 'Zero-latency on-device query parser across field notes & findings',
+      icon: Search,
+      badge: 'Local DB',
     },
     {
       to: '/export',
@@ -75,13 +99,6 @@ export const MoreScreen: React.FC = () => {
       description: 'Package notes, media, and CSV/JSON datasets into offline archives',
       icon: Download,
       badge: 'ZIP/CSV',
-    },
-    {
-      to: '/search',
-      title: 'Local Full-Text Search',
-      description: 'Zero-latency indexing across all local field notes & transcripts',
-      icon: Search,
-      badge: 'IndexedDB',
     },
   ];
 
@@ -93,11 +110,11 @@ export const MoreScreen: React.FC = () => {
           Field Intelligence Modules
         </h1>
         <p className="text-metadata text-text-muted mt-0.5">
-          Specialized offline tools for assets, reporting, security, and exports
+          Specialized offline tools for manager rollup, OfficeKit bridge, security vault, and templates
         </p>
       </div>
 
-      {/* Grid of Feature Cards */}
+      {/* Grid of Feature Cards (Every card links to a real screen) */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
         {moduleCards.map((card) => {
           const Icon = card.icon;
@@ -132,13 +149,13 @@ export const MoreScreen: React.FC = () => {
         })}
       </div>
 
-      {/* Settings & System Transparency */}
+      {/* Settings, Language, Theme & Demo Controls */}
       <div className="p-5 rounded-2xl bg-bg-surface1 border border-border-default space-y-5 transition-colors">
         <div className="flex items-center justify-between pb-3 border-b border-border-subtle">
           <div className="flex items-center gap-2">
             <Settings className="w-4 h-4 text-semantic-green" />
             <h2 className="text-body-md font-bold text-text-primary">
-              Settings & Intelligence Engine
+              System Settings & Intelligence Controls
             </h2>
           </div>
 
@@ -148,37 +165,64 @@ export const MoreScreen: React.FC = () => {
             icon={Sparkles}
             onClick={handleLaunchTour}
           >
-            Launch Demo Tour
+            {t('demoTour')}
           </Button>
         </div>
 
-        {/* Setting: Engine Mode (Disabled per Phase 4.5 honesty) */}
+        {/* Setting 1: Language & Field Script (Spec 6) */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 rounded-xl bg-bg-surface2/60 border border-border-subtle">
-          <div className="space-y-0.5 max-w-lg">
+          <div className="space-y-0.5">
             <div className="flex items-center gap-2">
-              <Cpu className="w-4 h-4 text-semantic-amber" />
+              <Globe2 className="w-4 h-4 text-semantic-blue" />
               <span className="text-body-sm font-semibold text-text-primary">
-                Intelligence Engine
+                {t('languageSetting')}
               </span>
             </div>
-            <p className="text-metadata text-text-muted leading-relaxed">
-              Currently running SimulatedEngine for on-device testing and field demonstrations.
+            <p className="text-metadata text-text-muted">
+              Self-hosted fonts for Latin (Inter), Telugu (తెలుగు - Noto Sans), and Hindi (हिन्दी - Devanagari).
             </p>
           </div>
 
-          <div className="flex items-center gap-2 shrink-0">
-            <button
-              type="button"
-              disabled
-              className="px-3 py-1.5 rounded-lg text-metadata-xs font-mono font-bold border bg-bg-surface2 text-text-muted border-border-subtle cursor-not-allowed opacity-80"
-              title="On-device engine: coming in a later build"
-            >
-              On-device engine: coming in a later build
-            </button>
-          </div>
+          <select
+            value={language}
+            onChange={(e) => setPreferredLanguage(e.target.value as SupportedLanguage)}
+            className="px-3 py-1.5 rounded-lg bg-bg-surface1 border border-border-default text-text-primary text-metadata font-medium focus:outline-none focus:border-semantic-green shrink-0"
+          >
+            <option value="en-US">English (Latin)</option>
+            <option value="te-IN">Telugu (తెలుగు)</option>
+            <option value="hi-IN">Hindi (हिन्दी)</option>
+          </select>
         </div>
 
-        {/* Setting: Reset Demo Database */}
+        {/* Setting 2: Display Theme Toggle (Dark vs. Daylight) */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 rounded-xl bg-bg-surface2/60 border border-border-subtle">
+          <div className="space-y-0.5">
+            <div className="flex items-center gap-2">
+              {resolvedTheme === 'daylight' ? (
+                <Sun className="w-4 h-4 text-semantic-amber" />
+              ) : (
+                <Moon className="w-4 h-4 text-text-muted" />
+              )}
+              <span className="text-body-sm font-semibold text-text-primary">
+                {t('themeSetting')}
+              </span>
+            </div>
+            <p className="text-metadata text-text-muted">
+              High-contrast Daylight Mode (AA+ solar visibility) vs. Dark Mode.
+            </p>
+          </div>
+
+          <Button
+            size="sm"
+            variant="secondary"
+            icon={resolvedTheme === 'daylight' ? Sun : Moon}
+            onClick={toggleTheme}
+          >
+            {resolvedTheme === 'daylight' ? t('daylightMode') : t('darkMode')}
+          </Button>
+        </div>
+
+        {/* Setting 3: Reset Demo Database */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 rounded-xl bg-bg-surface2/60 border border-border-subtle">
           <div className="space-y-0.5 max-w-lg">
             <div className="flex items-center gap-2">
@@ -188,7 +232,7 @@ export const MoreScreen: React.FC = () => {
               </span>
             </div>
             <p className="text-metadata text-text-muted leading-relaxed">
-              Restore all IndexedDB tables (11 field reports, PANEL-204 asset records, and punch lists) to default seed values.
+              Restore all IndexedDB tables (12 weekly field reports, PANEL-204 records, and punch lists) to default seed values.
             </p>
           </div>
 
@@ -200,83 +244,6 @@ export const MoreScreen: React.FC = () => {
           >
             {resetSuccess ? 'Data Reset Complete' : 'Reset Demo Data'}
           </Button>
-        </div>
-
-        {/* Setting 1: Speech Service (Disabled per Phase 4.5 truthfulness) */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 rounded-xl bg-bg-surface2/60 border border-border-subtle">
-          <div className="space-y-0.5 max-w-lg">
-            <div className="flex items-center gap-2">
-              <CloudLightning className="w-4 h-4 text-text-muted" />
-              <label htmlFor="online-speech-toggle" className="text-body-sm font-semibold text-text-secondary cursor-not-allowed">
-                Online Speech
-              </label>
-            </div>
-            <p className="text-metadata text-semantic-amber-text font-medium leading-relaxed">
-              Online speech isn't wired up in this build.
-            </p>
-          </div>
-
-          <label className="relative inline-flex items-center cursor-not-allowed shrink-0">
-            <input
-              id="online-speech-toggle"
-              type="checkbox"
-              disabled
-              checked={false}
-              className="sr-only peer"
-            />
-            <div className="w-11 h-6 bg-border-strong rounded-full opacity-40 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5"></div>
-          </label>
-        </div>
-
-        {/* Setting 2: Preferred Language */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 rounded-xl bg-bg-surface2/60 border border-border-subtle">
-          <div className="space-y-0.5">
-            <div className="flex items-center gap-2">
-              <Globe2 className="w-4 h-4 text-semantic-blue" />
-              <span className="text-body-sm font-semibold text-text-primary">
-                Field Script / Language
-              </span>
-            </div>
-            <p className="text-metadata text-text-muted">
-              Self-hosted local fonts for Latin, Telugu (తెలుగు), and Hindi (हिन्दी).
-            </p>
-          </div>
-
-          <select
-            value={settings.preferredLanguage}
-            onChange={(e) => setPreferredLanguage(e.target.value as 'en-US' | 'te-IN' | 'hi-IN')}
-            className="px-3 py-1.5 rounded-lg bg-bg-surface1 border border-border-default text-text-primary text-metadata font-medium focus:outline-none focus:border-semantic-green"
-          >
-            <option value="en-US">English (Latin)</option>
-            <option value="te-IN">Telugu (తెలుగు)</option>
-            <option value="hi-IN">Hindi (हिन्दी)</option>
-          </select>
-        </div>
-
-        {/* Setting 3: Hardware volume button trigger (Disabled per Phase 4.5 truthfulness) */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 rounded-xl bg-bg-surface2/60 border border-border-subtle">
-          <div className="space-y-0.5 max-w-lg">
-            <div className="flex items-center gap-2">
-              <Volume2 className="w-4 h-4 text-text-muted" />
-              <label htmlFor="volume-trigger-toggle" className="text-body-sm font-semibold text-text-secondary cursor-not-allowed">
-                Hardware Volume-Button Trigger
-              </label>
-            </div>
-            <p className="text-metadata text-semantic-amber-text font-medium leading-relaxed">
-              Hardware volume trigger isn't wired up in this build.
-            </p>
-          </div>
-
-          <label className="relative inline-flex items-center cursor-not-allowed shrink-0">
-            <input
-              id="volume-trigger-toggle"
-              type="checkbox"
-              disabled
-              checked={false}
-              className="sr-only peer"
-            />
-            <div className="w-11 h-6 bg-border-strong rounded-full opacity-40 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5"></div>
-          </label>
         </div>
 
         {/* Transparency note: Simulated Engine notice */}

@@ -1,0 +1,3 @@
+# Netlify _redirects fallback (also honoured by Cloudflare Pages)
+# SPA catch-all: every path that is not a real file serves index.html
+/*    /index.html    200

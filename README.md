@@ -50,8 +50,17 @@ npm run test:e2e
 ### Static / SPA Hosting
 FieldNote is a 100% client-side Progressive Web Application and can be hosted on any static web host, CDN, or object storage (Vercel, Cloudflare Pages, Netlify, GitHub Pages, AWS S3/CloudFront).
 
-- **Vercel**: Configuration is provided in `vercel.json` with SPA route rewrites to `/index.html` and explicit `no-cache` headers for service workers (`sw.js`).
-- **Static output**: Build artifacts reside in `/dist`. Serving `/dist` from the root of any web server delivers the complete offline PWA.
+- **Vercel**: `vercel.json` handles SPA rewrites, `no-cache` for service workers, and `immutable` long-cache for hashed assets.
+- **Netlify**: `netlify.toml` provides the same SPA redirect and cache header rules. `public/_redirects` is the belt-and-suspenders fallback also honoured by Cloudflare Pages.
+- **Other static hosts**: Serve `/dist` from the root. Configure your host to return `index.html` for any path that is not a real file (SPA fallback).
+
+### Backend / Sync (Optional)
+The app runs fully without a backend. If you deploy the optional Phase 7 sync API:
+
+1. Copy `.env.example` → `.env.local` (never commit `.env.local`).
+2. Fill in `MONGODB_URI`, `JWT_SECRET`, and `ALLOWED_ORIGIN`.
+3. Set these three env vars in your Vercel / Netlify project dashboard.
+4. If `MONGODB_URI` is absent, every `/api` endpoint returns `503 { code: "SYNC_NOT_CONFIGURED" }` and the UI displays "Sync isn't configured in this deployment." The rest of the app works normally.
 
 ---
 

@@ -1,8 +1,26 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { navItems } from './navigation';
+import { useTranslation } from '../lib/i18n';
 
 export const BottomNav: React.FC = () => {
+  const { t } = useTranslation();
+
+  const getLabel = (to: string, defaultLabel: string): string => {
+    switch (to) {
+      case '/capture':
+        return t('navCapture');
+      case '/reports':
+        return t('navReports');
+      case '/tasks':
+        return t('navTasks');
+      case '/more':
+        return t('navMore');
+      default:
+        return defaultLabel;
+    }
+  };
+
   return (
     <nav 
       className="md:hidden fixed bottom-0 left-0 right-0 z-30 bg-bg-surface1/95 backdrop-blur-md border-t border-border-default safe-pb px-2 py-1 transition-colors"
@@ -33,7 +51,7 @@ export const BottomNav: React.FC = () => {
                     )}
                   </div>
                   <span className="text-[11px] mt-1 font-medium tracking-tight">
-                    {item.label}
+                    {getLabel(item.to, item.label)}
                   </span>
                 </>
               )}

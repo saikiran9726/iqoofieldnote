@@ -4,36 +4,58 @@ import { TopBar } from './TopBar';
 import { BottomNav } from './BottomNav';
 import { DemoTour } from './DemoTour';
 import { navItems } from './navigation';
-import { Activity, ShieldCheck, Database } from 'lucide-react';
+import { Activity, ShieldCheck, Database, Layers } from 'lucide-react';
+import { useTranslation } from '../lib/i18n';
 
 export const Layout: React.FC = () => {
   const location = useLocation();
+
+  const { t } = useTranslation();
 
   const getPageTitle = (pathname: string): { title: string; subtitle: string } => {
     switch (pathname) {
       case '/capture':
       case '/':
-        return { title: 'Field Capture', subtitle: 'Voice memos, camera evidence & quick field drafts' };
+        return { title: t('navCapture'), subtitle: 'Voice memos, camera evidence & quick field drafts' };
       case '/reports':
-        return { title: 'Inspection Reports', subtitle: 'Structured dossiers, site audits & generated summaries' };
+        return { title: t('navReports'), subtitle: 'Structured dossiers, site audits & generated summaries' };
       case '/tasks':
-        return { title: 'Field Tasks', subtitle: 'Extracted punch lists, severity tags & action items' };
+        return { title: t('navTasks'), subtitle: 'Extracted punch lists, severity tags & action items' };
       case '/more':
-        return { title: 'More Features', subtitle: 'Assets, analytics, security vault, OfficeKit & exports' };
+        return { title: t('navMore'), subtitle: 'Assets, analytics, security vault, OfficeKit & exports' };
       case '/assets':
         return { title: 'Asset Inventory', subtitle: 'Equipment tracking, serial tags & maintenance logs' };
       case '/rollup':
-        return { title: 'Site Rollup', subtitle: 'Cross-site metrics, incident patterns & completion rates' };
+        return { title: t('weeklyRollup'), subtitle: t('weeklyRollupDesc') };
       case '/privacy':
-        return { title: 'Privacy & Security', subtitle: 'On-device vault, biometric locks & zero-cloud guarantee' };
+        return { title: t('privacyTrust'), subtitle: t('privacyTrustDesc') };
       case '/officekit':
-        return { title: 'OfficeKit Documents', subtitle: 'Local PDF renderer with Indian script shaping' };
+        return { title: t('officeKit'), subtitle: t('officeKitDesc') };
+      case '/templates':
+        return { title: t('templatesGlossary'), subtitle: t('templatesGlossaryDesc') };
+      case '/about':
+        return { title: t('aboutApp'), subtitle: t('aboutAppDesc') };
       case '/export':
         return { title: 'Data Export', subtitle: 'Complete offline ZIP dossiers and CSV datasets' };
       case '/search':
         return { title: 'Local Search', subtitle: 'Instant full-text index across all local field notes' };
       default:
-        return { title: 'FieldNote', subtitle: 'Offline Field Intelligence' };
+        return { title: t('appName'), subtitle: 'Offline Field Intelligence' };
+    }
+  };
+
+  const getNavItemLabel = (to: string, defaultLabel: string): string => {
+    switch (to) {
+      case '/capture':
+        return t('navCapture');
+      case '/reports':
+        return t('navReports');
+      case '/tasks':
+        return t('navTasks');
+      case '/more':
+        return t('navMore');
+      default:
+        return defaultLabel;
     }
   };
 
@@ -66,7 +88,7 @@ export const Layout: React.FC = () => {
                   `}
                 >
                   <Icon className="w-5 h-5" />
-                  <span>{item.label}</span>
+                  <span>{getNavItemLabel(item.to, item.label)}</span>
                 </NavLink>
               );
             })}
@@ -77,16 +99,6 @@ export const Layout: React.FC = () => {
               Field Modules
             </p>
             <NavLink
-              to="/assets"
-              className={({ isActive }) => `
-                flex items-center gap-3 px-3 py-2 rounded-lg text-body-sm transition-all
-                ${isActive ? 'bg-bg-surface2 text-text-primary font-semibold' : 'text-text-muted hover:text-text-secondary hover:bg-bg-surface2'}
-              `}
-            >
-              <Database className="w-4 h-4" />
-              <span>Assets</span>
-            </NavLink>
-            <NavLink
               to="/rollup"
               className={({ isActive }) => `
                 flex items-center gap-3 px-3 py-2 rounded-lg text-body-sm transition-all
@@ -94,7 +106,7 @@ export const Layout: React.FC = () => {
               `}
             >
               <Activity className="w-4 h-4" />
-              <span>Site Rollup</span>
+              <span>{t('weeklyRollup')}</span>
             </NavLink>
             <NavLink
               to="/privacy"
@@ -104,7 +116,27 @@ export const Layout: React.FC = () => {
               `}
             >
               <ShieldCheck className="w-4 h-4" />
-              <span>Privacy Vault</span>
+              <span>{t('privacyTrust')}</span>
+            </NavLink>
+            <NavLink
+              to="/templates"
+              className={({ isActive }) => `
+                flex items-center gap-3 px-3 py-2 rounded-lg text-body-sm transition-all
+                ${isActive ? 'bg-bg-surface2 text-text-primary font-semibold' : 'text-text-muted hover:text-text-secondary hover:bg-bg-surface2'}
+              `}
+            >
+              <Layers className="w-4 h-4" />
+              <span>{t('templatesGlossary')}</span>
+            </NavLink>
+            <NavLink
+              to="/assets"
+              className={({ isActive }) => `
+                flex items-center gap-3 px-3 py-2 rounded-lg text-body-sm transition-all
+                ${isActive ? 'bg-bg-surface2 text-text-primary font-semibold' : 'text-text-muted hover:text-text-secondary hover:bg-bg-surface2'}
+              `}
+            >
+              <Database className="w-4 h-4" />
+              <span>Assets</span>
             </NavLink>
           </div>
 

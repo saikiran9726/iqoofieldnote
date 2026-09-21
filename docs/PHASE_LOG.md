@@ -365,4 +365,73 @@
 - None. Phase 5 complete.
 
 
+---
+
+## Phase 10: Production Build, Deployment Files, and Release Readiness
+
+### What Was Done
+- **Production Build Verified (`npm run build`)**:
+  - `tsc -b` passed (0 TypeScript errors).
+  - Vite built in ~7 s with 37 precached PWA entries covering all JS bundles, CSS, fonts, and icons.
+  - `dist/_redirects` automatically copied from `public/` by Vite.
+  - `dist/sw.js`, `dist/workbox-*.js`, and `dist/manifest.webmanifest` generated correctly.
+  - Build exit code 0 (the Rollup chunk-size warning is informational only; jsPDF + xlsx are intentionally large).
+- **Vercel Configuration** (`vercel.json` — existing, verified):
+  - SPA rewrite: all paths except service workers, Workbox chunks, manifest, icons, and hashed assets → `/index.html`.
+  - `no-cache, no-store, must-revalidate` for `sw.js`, `workbox-*`, `registerSW.js`.
+  - `public, max-age=31536000, immutable` for `/assets/*` (content-hashed by Vite).
+- **Netlify Configuration** (`netlify.toml` — NEW):
+  - Equivalent SPA `[[redirects]]` catch-all `/* → /index.html` with status 200.
+  - Same service worker `no-cache` headers and hashed-asset `immutable` headers as `vercel.json`.
+- **Redirects Fallback** (`public/_redirects` — NEW):
+  - Single-line `/* /index.html 200` for Netlify and Cloudflare Pages compatibility.
+  - Copied to `dist/_redirects` automatically by the Vite build.
+- **Env Var Template** (`.env.example` — NEW):
+  - Documents `MONGODB_URI`, `JWT_SECRET`, `ALLOWED_ORIGIN` with explanations and sample format.
+  - Safe to commit (contains no real secrets). `.env.local` remains in `.gitignore`.
+- **Privacy Notice in About Screen**:
+  - Added amber banner to `src/features/about/index.tsx`: *"Demo data only. Nothing leaves this device unless you turn on sync or share a report."*
+- **README Deploy Section Expanded**:
+  - Added Netlify deployment instructions alongside existing Vercel guidance.
+  - Added Backend / Sync (Optional) subsection documenting `.env.example` workflow and the `SYNC_NOT_CONFIGURED` 503 fallback behaviour.
+- **No Absolute or Localhost URLs**:
+  - `grep -r "localhost"` across `src/` → 0 results.
+  - All `http://` hits in source are inline SVG data URIs (not network requests).
+- **No Analytics or Tracking**:
+  - Zero third-party analytics, beacon, or telemetry scripts anywhere in `src/`, `index.html`, or `vite.config.ts`.
+  - Confirmed by reviewing `index.html` and all plugin configuration.
+
+### Quality & Verification Results
+- `npm run typecheck`: Passed (0 errors).
+- `npm run lint`: Passed (0 warnings, 0 errors).
+- `npm test`: Passed (25/25 unit tests — 6 test files).
+- `npm run build`: Clean production build, 37 precached PWA assets, `dist/_redirects` present.
+
+### Deployment Guide
+```bash
+# Install and build
+npm install
+npm run build
+
+# Preview locally (serves from /dist, service worker active)
+npm run preview
+# → open http://localhost:4173 in a clean browser profile
+
+# Deploy to Vercel (static)
+vercel deploy --prod
+
+# Deploy to Netlify (static)
+netlify deploy --dir=dist --prod
+```
+
+### Assumptions Logged
+1. The build exit-code-1 warning from npm (Rollup chunk size) is a PowerShell stderr-to-stdout artefact — Vite itself exited 0 and wrote all expected dist files.
+2. Backend env vars (`MONGODB_URI`, `JWT_SECRET`, `ALLOWED_ORIGIN`) are set via the host dashboard only; they are never committed and are entirely optional.
+3. The `public/_redirects` file is intentionally minimal — `netlify.toml` redirect rules take priority on Netlify; `_redirects` is the Cloudflare Pages / bare static-host fallback.
+
+### Known Gaps
+- None. Phase 10 complete. App is release-ready for static hosting.
+
+
+
 
