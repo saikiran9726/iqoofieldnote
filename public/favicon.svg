@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <rect width="512" height="512" rx="112" fill="#090B0D"/>
+  <rect x="24" y="24" width="464" height="464" rx="96" fill="#111417" stroke="#2E3846" stroke-width="8"/>
+  <path d="M140 120 H372 C383 120 392 129 392 140 V372 C392 383 383 392 372 392 H140 C129 392 120 383 120 372 V140 C120 129 129 120 140 120 Z" fill="#181C20" stroke="#10B981" stroke-width="12" stroke-linejoin="round"/>
+  <!-- Audio wave / Field note badge -->
+  <path d="M180 256 V256 M218 200 V312 M256 160 V352 M294 210 V302 M332 256 V256" stroke="#10B981" stroke-width="20" stroke-linecap="round"/>
+  <circle cx="392" cy="120" r="28" fill="#10B981"/>
+</svg>

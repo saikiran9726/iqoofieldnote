@@ -1,0 +1,133 @@
+@import '@fontsource/inter/latin-400.css';
+@import '@fontsource/inter/latin-500.css';
+@import '@fontsource/inter/latin-600.css';
+@import '@fontsource/inter/latin-700.css';
+@import '@fontsource/jetbrains-mono/latin-400.css';
+@import '@fontsource/jetbrains-mono/latin-600.css';
+@import '@fontsource/noto-sans-telugu/telugu-400.css';
+@import '@fontsource/noto-sans-telugu/telugu-600.css';
+@import '@fontsource/noto-sans-devanagari/devanagari-400.css';
+@import '@fontsource/noto-sans-devanagari/devanagari-600.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Dark mode by default */
+  --color-bg-base: #090B0D;
+  --color-bg-surface1: #111417;
+  --color-bg-surface2: #181C20;
+  --color-bg-elevated: #222831;
+  --color-bg-hover: #2A323D;
+
+  --color-text-primary: #F1F5F9;
+  --color-text-secondary: #94A3B8;
+  --color-text-muted: #64748B;
+  --color-text-inverse: #090B0D;
+
+  --color-border-subtle: #1F242C;
+  --color-border-default: #2E3846;
+  --color-border-strong: #475569;
+
+  --color-green-base: #10B981;
+  --color-green-surface: #064E3B;
+  --color-green-border: #059669;
+  --color-green-text: #6EE7B7;
+
+  --color-amber-base: #F59E0B;
+  --color-amber-surface: #78350F;
+  --color-amber-border: #D97706;
+  --color-amber-text: #FCD34D;
+
+  --color-red-base: #EF4444;
+  --color-red-surface: #7F1D1D;
+  --color-red-border: #DC2626;
+  --color-red-text: #FCA5A5;
+
+  --color-blue-base: #38BDF8;
+  --color-blue-surface: #0C4A6E;
+  --color-blue-border: #0284C7;
+  --color-blue-text: #BAE6FD;
+}
+
+html.daylight {
+  /* High contrast daylight mode */
+  --color-bg-base: #F8FAFC;
+  --color-bg-surface1: #FFFFFF;
+  --color-bg-surface2: #EDF2F7;
+  --color-bg-elevated: #E2E8F0;
+  --color-bg-hover: #CBD5E1;
+
+  --color-text-primary: #0F172A;
+  --color-text-secondary: #334155;
+  --color-text-muted: #64748B;
+  --color-text-inverse: #FFFFFF;
+
+  --color-border-subtle: #E2E8F0;
+  --color-border-default: #CBD5E1;
+  --color-border-strong: #94A3B8;
+
+  --color-green-base: #059669;
+  --color-green-surface: #D1FAE5;
+  --color-green-border: #10B981;
+  --color-green-text: #065F46;
+
+  --color-amber-base: #D97706;
+  --color-amber-surface: #FEF3C7;
+  --color-amber-border: #F59E0B;
+  --color-amber-text: #92400E;
+
+  --color-red-base: #DC2626;
+  --color-red-surface: #FEE2E2;
+  --color-red-border: #EF4444;
+  --color-red-text: #991B1B;
+
+  --color-blue-base: #0284C7;
+  --color-blue-surface: #E0F2FE;
+  --color-blue-border: #0EA5E9;
+  --color-blue-text: #075985;
+}
+
+@layer base {
+  * {
+    border-color: var(--color-border-default);
+  }
+
+  body {
+    background-color: var(--color-bg-base);
+    color: var(--color-text-primary);
+    font-family: 'Inter', 'Noto Sans Telugu', 'Noto Sans Devanagari', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    min-height: 100vh;
+    min-height: 100dvh;
+    margin: 0;
+    padding: 0;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  input, textarea, [contenteditable="true"] {
+    user-select: text;
+    -webkit-user-select: text;
+  }
+}
+
+/* Safe area utilities */
+.safe-pt {
+  padding-top: max(env(safe-area-inset-top, 0px), 12px);
+}
+
+.safe-pb {
+  padding-bottom: max(env(safe-area-inset-bottom, 0px), 12px);
+}
+
+.safe-pl {
+  padding-left: max(env(safe-area-inset-left, 0px), 16px);
+}
+
+.safe-pr {
+  padding-right: max(env(safe-area-inset-right, 0px), 16px);
+}
