@@ -5,14 +5,14 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const screensDir = path.resolve(__dirname, '../docs/screens/phase-0');
+const screensDir = path.resolve(__dirname, '../docs/screens/phase-1');
 
 if (!fs.existsSync(screensDir)) {
   fs.mkdirSync(screensDir, { recursive: true });
 }
 
 async function runVerification() {
-  console.log('Starting preview server for verification...');
+  console.log('Starting preview server for Phase 1 verification...');
   const previewServer = await preview({
     preview: {
       port: 4173,
@@ -37,6 +37,7 @@ async function runVerification() {
     { path: '/officekit', name: 'officekit' },
     { path: '/export', name: 'export' },
     { path: '/search', name: 'search' },
+    { path: '/kit', name: 'component-kit' },
   ];
 
   try {
@@ -55,7 +56,7 @@ async function runVerification() {
 
     for (const route of routes) {
       await mobilePage.goto(`${baseUrl}${route.path}`, { waitUntil: 'networkidle' });
-      await mobilePage.waitForTimeout(150);
+      await mobilePage.waitForTimeout(200);
       const filename = `mobile-${route.name}-390x844.png`;
       await mobilePage.screenshot({ path: path.join(screensDir, filename) });
       console.log(`✓ Captured ${filename}`);
@@ -76,21 +77,26 @@ async function runVerification() {
 
     for (const route of routes) {
       await desktopPage.goto(`${baseUrl}${route.path}`, { waitUntil: 'networkidle' });
-      await desktopPage.waitForTimeout(150);
+      await desktopPage.waitForTimeout(200);
       const filename = `desktop-${route.name}-1280x800.png`;
       await desktopPage.screenshot({ path: path.join(screensDir, filename) });
       console.log(`✓ Captured ${filename}`);
     }
 
-    // 3. Daylight theme test
-    console.log('\n--- Verifying Daylight Theme Mode ---');
-    await mobilePage.goto(`${baseUrl}/capture`, { waitUntil: 'networkidle' });
-    const daylightButton = await mobilePage.getByRole('radio', { name: /Daylight/i });
+    // 3. Daylight theme tests on mobile and kit
+    console.log('\n--- Verifying Daylight Theme Mode on /kit & /reports ---');
+    await mobilePage.goto(`${baseUrl}/kit`, { waitUntil: 'networkidle' });
+    const daylightButton = await mobilePage.getByRole('radio', { name: /Daylight/i }).first();
     if (await daylightButton.isVisible()) {
       await daylightButton.click();
+      await mobilePage.waitForTimeout(250);
+      await mobilePage.screenshot({ path: path.join(screensDir, 'mobile-kit-daylight-390x844.png') });
+      console.log('✓ Captured mobile-kit-daylight-390x844.png');
+
+      await mobilePage.goto(`${baseUrl}/reports`, { waitUntil: 'networkidle' });
       await mobilePage.waitForTimeout(200);
-      await mobilePage.screenshot({ path: path.join(screensDir, 'mobile-capture-daylight-390x844.png') });
-      console.log('✓ Captured mobile-capture-daylight-390x844.png');
+      await mobilePage.screenshot({ path: path.join(screensDir, 'mobile-reports-daylight-390x844.png') });
+      console.log('✓ Captured mobile-reports-daylight-390x844.png');
     }
 
   } finally {
@@ -102,7 +108,7 @@ async function runVerification() {
     console.error(`\nFAILED: Encountered ${consoleErrors.length} console errors during verification.`);
     process.exit(1);
   } else {
-    console.log('\nALL VERIFICATIONS PASSED: 0 console errors, all screens captured successfully.');
+    console.log('\nALL VERIFICATIONS PASSED: 0 console errors, all Phase 1 screens captured successfully.');
   }
 }
 

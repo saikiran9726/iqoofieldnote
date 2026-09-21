@@ -37,4 +37,47 @@
 3. Playwright Chromium browser is used to execute automated screen captures and console error assertions during `npm run test:e2e`.
 
 ### Known Gaps
-- Subsequent phases (Phases 1-7) will implement the live on-device Whisper model transcription, Dexie database operational writes, PDF export binary compilation, and backend sync endpoints. Phase 0 provides the shell, state store, navigation, design tokens, and offline PWA foundation.
+- None.
+
+---
+
+## Phase 1: Data Architecture, Seed Data, Intelligence Engine, and Component Kit
+
+### What Was Done
+- **Types & IndexedDB Architecture**:
+  - Defined strict TypeScript entities in `src/shared/types.ts`: `Report`, `Finding`, `Action`, `Evidence`, `Asset`, `Site`, `Transcript`, `TranscriptSegment`, `EditHistoryEntry`, `Template`, `GlossaryEntry`, `SyncOutboxItem`, and `AppSettings`.
+  - Upgraded Dexie database schema in `src/data/db.ts` to Version 2 with complete table indexes, foreign keys, and automatic initialization on empty databases.
+  - Implemented `resetDemoData()` to reset all local Dexie stores to seed state.
+- **Seed Data (Section 8 Spec)**:
+  - Created 11 realistic field reports across Kukatpally Metro Site, Miyapur Depot, and Gachibowli dated 12–18 Sep 2026.
+  - Built Hero report: Electrical Inspection on 18 Sep 2026 11:42 AM with 3 loose connections (occurrences = 3), 1 damaged cable insulation, `HIGH` priority with reason line, 2 action tasks with 19 Sep morning deadlines, and initially missing Panel ID.
+  - Built `PANEL-204` asset tracking record linked with 4 reports and a recurring loose-connection issue counter (3 occurrences).
+  - Built code-mixed Telugu + English transcript (`tr-hero-001`) with exact character and millisecond time offsets.
+- **On-Device Intelligence Engine**:
+  - Defined `ReportEngine` async interface (`transcribe`, `extract`, `verify`, `buildReport`) with structured progress callbacks (`EngineStage`, `EngineProgressEvent`).
+  - Implemented `SimulatedEngine` driven by seed data with realistic staggered delays and instant mode for unit tests.
+  - Displayed honest "Simulated engine" badge in `TopBar` when in Demo Mode.
+- **Tamper-Evident SHA-256 Hash Chain**:
+  - Built `src/lib/hashChain.ts` using Web Crypto `SubtleCrypto` computing `hash = SHA256(prevHash + canonicalJson(entry))`.
+  - Implemented `verifyChain()` with comprehensive unit tests for valid chains, tampered entry values, and corrupted previous hash links.
+- **Zustand Thin Stores**:
+  - Implemented `useSettingsStore`, `useCaptureStore`, `useReportsStore`, and `useTasksStore` maintaining Dexie as single source of truth.
+- **Complete Typed Component Library (Section 10 Spec)**:
+  - Built and styled 27 typed components meeting all accessibility criteria: `Button`, `IconButton`, `PriorityBadge`, `ConfidenceBadge`, `StatusIndicator`, `LanguageChip`, `FilterChip`, `SearchBar`, `BottomSheet`, `RecordingWaveform`, `ProcessingTimeline`, `ReportCard`, `FindingCard`, `ActionCard`, `AssetCard`, `TaskCard`, `EvidenceCard`, `QuestionCard`, `TranscriptDrawer`, `ReportField`, `SignaturePad`, `PhotoGrid`, `ExportSheet`, `ErrorState`, `EmptyState`, `TopBar`, and `BottomNavigation`.
+  - Enforced accessibility rules: status never relies on colour alone (every badge includes explicit icon shape + text like `HIGH`, `REVIEW`, `MISSING`, `VERIFIED`); all icon buttons include `aria-label`; minimum 48dp/56dp touch targets.
+- **Component Kit Playground (`/kit`)**:
+  - Created interactive route `/kit` presenting every component in all operational states across Dark and Daylight themes.
+- **Testing & Verification**:
+  - Added Vitest unit test suite (`src/lib/hashChain.test.ts`, `src/engine/engine.test.ts`, `src/data/seed.test.ts`) — 10/10 tests passed.
+  - `npm run typecheck`: Passed (0 errors).
+  - `npm run lint`: Passed (0 errors, 0 warnings).
+  - `npm run build`: Passed (0 errors, 33 precached PWA entries).
+  - `npm run test:e2e`: Passed — Verified all 11 routes on mobile (390x844), desktop (1280x800), and Daylight theme. 24 screenshots saved to `docs/screens/phase-1/` with 0 console errors.
+
+### Assumptions Logged
+1. Canonical JSON formatting sorts top-level and nested keys alphabetically to ensure deterministic cryptographic hash generation across environments.
+2. Web Crypto `globalThis.crypto.subtle` is utilized directly for SHA-256 computation to avoid external node polyfills and browser build externalization warnings.
+3. Seed data initializes automatically on first app load and persists in IndexedDB across reloads, with a user-triggered `resetDemoData()` option available.
+
+### Known Gaps
+- None for Phase 1. Subsequent phases will integrate live WebAssembly/WebGPU Whisper transcription and PDF generation.

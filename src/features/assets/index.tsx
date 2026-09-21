@@ -1,83 +1,75 @@
-import React, { useState } from 'react';
-import { Database, Plus, ArrowLeft } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { Plus, ArrowLeft } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { EmptyState } from '../../components/EmptyState';
-import type { AssetRecord } from '../../shared/types';
+import { EmptyState, AssetCard, Button } from '../../components';
+import type { Asset } from '../../shared/types';
+import { db, resetDemoData } from '../../data/db';
 
 export const AssetsScreen: React.FC = () => {
-  const [assets, setAssets] = useState<AssetRecord[]>([]);
+  const [assets, setAssets] = useState<Asset[]>([]);
 
-  const handleCreateSampleAsset = () => {
-    const sample: AssetRecord = {
-      id: `ast-${Date.now()}`,
-      tagId: 'PUMP-HYD-042',
-      name: 'High-Pressure Hydraulic Feed Pump',
-      category: 'Pumping Systems',
-      lastInspected: new Date().toISOString(),
-      status: 'operational',
-    };
-    setAssets([sample, ...assets]);
+  const loadAssets = async () => {
+    const list = await db.assets.toArray();
+    setAssets(list);
   };
+
+  useEffect(() => {
+    loadAssets();
+  }, []);
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-2">
-        <Link to="/more" className="p-1.5 rounded-lg bg-bg-surface1 border border-border-default text-text-muted hover:text-text-primary">
-          <ArrowLeft className="w-4 h-4" />
-        </Link>
-        <div>
-          <h2 className="text-heading-sm font-bold text-text-primary">Asset Inventory</h2>
-          <p className="text-metadata text-text-muted">Local equipment records and QR barcode mapping</p>
+      <div className="flex items-center justify-between gap-2">
+        <div className="flex items-center gap-2">
+          <Link to="/more" className="p-2 rounded-xl bg-bg-surface1 border border-border-default text-text-muted hover:text-text-primary transition-colors">
+            <ArrowLeft className="w-4 h-4" />
+          </Link>
+          <div>
+            <h2 className="text-heading-sm font-bold text-text-primary">Asset Inventory</h2>
+            <p className="text-metadata text-text-muted">Local equipment records and recurring issue history</p>
+          </div>
         </div>
+
+        <Button
+          size="sm"
+          variant="secondary"
+          onClick={async () => {
+            await resetDemoData();
+            await loadAssets();
+          }}
+        >
+          Reset Assets
+        </Button>
       </div>
 
       {assets.length === 0 ? (
         <EmptyState
-          icon={Database}
+          icon={Plus}
           badge="No Assets Indexed"
           title="Asset Inventory Empty"
           description="Track equipment tags, maintenance logs, and sensor specs locally on this device. Scan QR codes or create new asset entries."
           actions={[
             {
-              label: 'Add Sample Equipment',
+              label: 'Load Sample Assets',
               icon: Plus,
-              onClick: handleCreateSampleAsset,
+              onClick: async () => {
+                await resetDemoData();
+                await loadAssets();
+              },
               variant: 'primary',
             },
           ]}
         />
       ) : (
-        <div className="space-y-3">
-          <div className="flex justify-end">
-            <button
-              type="button"
-              onClick={handleCreateSampleAsset}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-semantic-green text-text-inverse text-metadata font-semibold"
-            >
-              <Plus className="w-3.5 h-3.5" />
-              <span>Add Asset</span>
-            </button>
-          </div>
-
+        <div className="space-y-3.5">
           {assets.map((asset) => (
-            <div
+            <AssetCard
               key={asset.id}
-              className="p-4 rounded-xl bg-bg-surface1 border border-border-default flex items-center justify-between gap-3"
-            >
-              <div className="space-y-1">
-                <div className="flex items-center gap-2">
-                  <span className="font-mono text-metadata-xs font-bold px-2 py-0.5 rounded bg-bg-surface2 text-semantic-blue border border-border-subtle">
-                    {asset.tagId}
-                  </span>
-                  <span className="text-metadata text-text-muted">{asset.category}</span>
-                </div>
-                <h4 className="text-body-sm font-semibold text-text-primary">{asset.name}</h4>
-              </div>
-
-              <span className="px-2.5 py-1 rounded-full text-metadata-xs font-mono font-semibold uppercase bg-semantic-green-surface text-semantic-green-text border border-semantic-green-border">
-                {asset.status}
-              </span>
-            </div>
+              asset={asset}
+              onClick={() => {
+                alert(`Asset Details: ${asset.tagId} (${asset.name})\nIssues recorded: ${asset.issueHistory.length}`);
+              }}
+            />
           ))}
         </div>
       )}

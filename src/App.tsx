@@ -2,6 +2,8 @@ import React, { useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Layout } from './components/Layout';
 import { useThemeStore } from './lib/theme';
+import { useSettingsStore } from './lib/stores';
+import { initDatabase } from './data/db';
 import { CaptureScreen } from './features/capture';
 import { ReportsScreen } from './features/reports';
 import { TasksScreen } from './features/tasks';
@@ -12,14 +14,18 @@ import { PrivacyScreen } from './features/privacy';
 import { OfficeKitScreen } from './features/officekit';
 import { ExportScreen } from './features/export';
 import { SearchScreen } from './features/search';
+import { ComponentKitScreen } from './features/kit';
 
 export const App: React.FC = () => {
   const initTheme = useThemeStore((s) => s.initTheme);
+  const loadSettings = useSettingsStore((s) => s.loadSettings);
 
   useEffect(() => {
     const cleanup = initTheme();
+    initDatabase().catch(console.error);
+    loadSettings().catch(console.error);
     return cleanup;
-  }, [initTheme]);
+  }, [initTheme, loadSettings]);
 
   return (
     <BrowserRouter>
@@ -36,6 +42,7 @@ export const App: React.FC = () => {
           <Route path="/officekit" element={<OfficeKitScreen />} />
           <Route path="/export" element={<ExportScreen />} />
           <Route path="/search" element={<SearchScreen />} />
+          <Route path="/kit" element={<ComponentKitScreen />} />
           <Route path="*" element={<Navigate to="/capture" replace />} />
         </Route>
       </Routes>

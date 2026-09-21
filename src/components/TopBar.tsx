@@ -1,7 +1,8 @@
 import React from 'react';
 import { OfflineBadge } from './OfflineBadge';
 import { ThemeToggle } from './ThemeToggle';
-import { Activity } from 'lucide-react';
+import { Activity, Cpu } from 'lucide-react';
+import { useSettingsStore } from '../lib/stores';
 
 interface TopBarProps {
   title?: string;
@@ -9,6 +10,8 @@ interface TopBarProps {
 }
 
 export const TopBar: React.FC<TopBarProps> = ({ title, subtitle }) => {
+  const engineKind = useSettingsStore((s) => s.settings.engineKind);
+
   return (
     <header className="sticky top-0 z-30 w-full bg-bg-surface1/90 backdrop-blur-md border-b border-border-default safe-pt px-4 py-3 transition-colors">
       <div className="max-w-7xl mx-auto flex items-center justify-between gap-3">
@@ -21,9 +24,19 @@ export const TopBar: React.FC<TopBarProps> = ({ title, subtitle }) => {
               <h1 className="text-body-lg font-bold tracking-tight text-text-primary truncate">
                 {title || 'FieldNote'}
               </h1>
-              <span className="hidden sm:inline-block px-1.5 py-0.5 rounded text-[10px] font-mono font-semibold uppercase tracking-wider bg-bg-surface2 text-text-muted border border-border-subtle">
-                v0.1
-              </span>
+              {engineKind === 'simulated' ? (
+                <span
+                  className="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-mono font-semibold uppercase tracking-wider bg-semantic-amber-surface text-semantic-amber-text border border-semantic-amber-border"
+                  title="Running in Demo Mode with Simulated Intelligence Engine"
+                >
+                  <Cpu className="w-2.5 h-2.5" />
+                  <span>Simulated engine</span>
+                </span>
+              ) : (
+                <span className="hidden sm:inline-block px-1.5 py-0.5 rounded text-[10px] font-mono font-semibold uppercase tracking-wider bg-bg-surface2 text-text-muted border border-border-subtle">
+                  v0.1
+                </span>
+              )}
             </div>
             {subtitle && (
               <p className="text-metadata text-text-muted truncate">
