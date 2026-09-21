@@ -81,3 +81,58 @@
 
 ### Known Gaps
 - None for Phase 1. Subsequent phases will integrate live WebAssembly/WebGPU Whisper transcription and PDF generation.
+
+---
+
+## Phase 2: Capture Screen, Real Mic Recorder, Processing Pipeline, and Error States
+
+### What Was Done
+- **Real Audio Recorder (`src/lib/audioRecorder.ts`)**:
+  - Implemented real microphone streaming via `navigator.mediaDevices.getUserMedia` with `MediaRecorder` audio capture.
+  - Implemented `AudioContext` and `AnalyserNode` frequency extraction (28-bar normalized amplitude data for waveforms) and real-time RMS noise floor classification (`LOW` < -35dB, `MEDIUM` -35dB to -20dB, `HIGH` > -20dB).
+  - Built comprehensive microphone error classification: `permission_denied` (NotAllowedError / PermissionDeniedError), `device_not_found` (NotFoundError), `device_busy` (NotReadableError), and fallback simulator for headless testing environments.
+  - Added unit tests in `src/lib/audioRecorder.test.ts` (12/12 test assertions passing).
+- **Capture State Machine & Store (`src/lib/stores/captureStore.ts`)**:
+  - Thin Zustand store managing lifecycle: `idle` -> `recording` -> `paused` -> `processing` -> `completed` / `error`.
+  - Live transcript preview stream typing in real-time with Telugu + English code-mixing and token offsets.
+  - Silence trimming option setting (`settings.silenceTrimming`), saving real audio blobs directly to Dexie `evidence` table.
+- **Capture Home Screen (`src/features/capture/index.tsx`)**:
+  - Top header with responsive `OfflineBadge` and Daylight quick-toggle.
+  - "What happened today?" prominent prompt above a dominant 128px central microphone button with expanding animated pulse rings (`scale + haptic` via `navigator.vibrate` when supported).
+  - Quick action bar below mic: Camera, Import, QR Scan buttons.
+  - Hands-free mode toggle with clear disclosure on browser background audio limitations.
+  - Recent reports section displaying 2–3 recent cards with status and site metadata.
+- **Import Sheet (`src/features/capture/ImportSheet.tsx`)**:
+  - High-craft bottom sheet listing import options (Field Audio, Batch Inspection Photos, CSV Asset Registry, JSON Archive) with explicit Phase 5 integration badges (zero dead buttons).
+- **Recording State View**:
+  - Prominent `RECORDING` animated status header with real-time timer elapsed.
+  - Live 28-bar frequency waveform visualizing ambient voice input.
+  - Language chip `"Telugu · English"` and dynamic noise level pill (`LOW`/`MEDIUM`/`HIGH`).
+  - Live typewriter transcript preview card showing real-time token stream.
+  - Large, high-contrast touch controls: `Pause`, `Resume`, and `Finish & Compile` (56dp min height).
+- **Error States (`src/components/ErrorState.tsx` & Capture Error Handlers)**:
+  - Permission Denied view: clear explanation of why mic access is required, step-by-step browser permission fix instructions, and a direct "Try Again" recovery action.
+  - Device Not Found / Busy view: troubleshooting tips with action buttons.
+- **Processing Pipeline View (Screen 4)**:
+  - Step-by-step pipeline animation with `ProcessingTimeline` indicating 4 distinct stages:
+    1. `LISTENING` — Captured audio stream & silence trimming.
+    2. `EXTRACTING` — Multilingual Telugu/English token alignment & NER.
+    3. `VERIFYING` — Asset database lookup & historical occurrence correlation.
+    4. `BUILDING REPORT` — SHA-256 hash chaining & draft compilation.
+  - Screen reader accessibility: `aria-live="polite"` dynamic region announcing every stage change.
+  - Progressive assembly card previewing extracted findings and severity in real-time as stages resolve.
+  - Seamless navigation to the compiled Report Detail screen upon completion.
+- **Quality Verification**:
+  - `npm test`: Passed (12/12 unit tests across 4 suites).
+  - `npm run typecheck`: Passed (0 errors).
+  - `npm run lint`: Passed (0 warnings, 0 errors).
+  - `npm run build`: Passed (0 errors, 33 precached PWA entries).
+  - `npm run test:e2e` (Playwright verification): Passed — verified Capture Home, Import Sheet, Active Recording, Processing Pipeline, Permission Denied Error State, Hero Report Detail, standard routes, and Daylight theme at 390x844 mobile and 1280x800 desktop. All screenshots saved to `docs/screens/phase-2/` with 0 console errors.
+
+### Assumptions Logged
+1. Browser environments without physical microphones (e.g. headless CI / automated test runners) gracefully fallback to simulated audio amplitude buffers while preserving the full Web Audio AnalyserNode architecture.
+2. In Phase 2, selecting audio file import immediately routes through the simulated audio transcription pipeline, while photo/CSV/JSON bulk import features display structured Phase 5 status notifications.
+
+### Known Gaps
+- None for Phase 2. Subsequent Phase 3 will build out the complete Report Detail Dossier view, inline interactive edits, missing field resolution prompts, tamper-evident hash chain inspection, and interactive audio scrubber.
+

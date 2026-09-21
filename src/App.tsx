@@ -6,6 +6,7 @@ import { useSettingsStore } from './lib/stores';
 import { initDatabase } from './data/db';
 import { CaptureScreen } from './features/capture';
 import { ReportsScreen } from './features/reports';
+import { ReportDetailScreen } from './features/reports/ReportDetail';
 import { TasksScreen } from './features/tasks';
 import { MoreScreen } from './features/more';
 import { AssetsScreen } from './features/assets';
@@ -34,6 +35,8 @@ export const App: React.FC = () => {
           <Route path="/" element={<Navigate to="/capture" replace />} />
           <Route path="/capture" element={<CaptureScreen />} />
           <Route path="/reports" element={<ReportsScreen />} />
+          <Route path="/reports/:id" element={<ReportDetailScreen />} />
+          <Route path="/report/:id" element={<ReportDetailScreen />} />
           <Route path="/tasks" element={<TasksScreen />} />
           <Route path="/more" element={<MoreScreen />} />
           <Route path="/assets" element={<AssetsScreen />} />

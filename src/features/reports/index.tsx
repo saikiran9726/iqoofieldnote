@@ -1,10 +1,12 @@
 import React, { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Plus, RotateCcw } from 'lucide-react';
 import { EmptyState, ReportCard, QuestionCard, Button } from '../../components';
 import { useReportsStore } from '../../lib/stores';
 import { resetDemoData } from '../../data/db';
 
 export const ReportsScreen: React.FC = () => {
+  const navigate = useNavigate();
   const { reports, loadReports, assignMissingEntity } = useReportsStore();
 
   useEffect(() => {
@@ -86,7 +88,7 @@ export const ReportsScreen: React.FC = () => {
                 key={report.id}
                 report={report}
                 onClick={() => {
-                  alert(`Selected report: ${report.title}\nInspector: ${report.inspector}\nPriority: ${report.priority.toUpperCase()}`);
+                  navigate(`/reports/${report.id}`);
                 }}
               />
             ))}
