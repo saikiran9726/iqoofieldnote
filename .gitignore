@@ -30,3 +30,5 @@ pnpm-debug.log*
 *.sln
 *.sw?
 .DS_Store
+test-results
+playwright-report
