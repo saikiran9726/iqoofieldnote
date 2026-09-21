@@ -184,6 +184,7 @@ export class SimulatedEngine implements ReportEngine {
     const report: Report = {
       id: reportId,
       title: input.overrides?.title ?? 'Electrical Inspection — Substation Panel Audit',
+      category: input.overrides?.category ?? 'ELECTRICAL INSPECTION',
       siteId: input.overrides?.siteId ?? 'site-kukatpally',
       siteName: input.overrides?.siteName ?? extracted.siteName,
       inspector: input.overrides?.inspector ?? extracted.inspector,
@@ -191,6 +192,13 @@ export class SimulatedEngine implements ReportEngine {
       status: 'in_review',
       priority: input.overrides?.priority ?? extracted.priority,
       priorityReason: input.overrides?.priorityReason ?? extracted.priorityReason,
+      deadline: input.overrides?.deadline ?? '19 Sep 2026 morning',
+      geo: input.overrides?.geo ?? {
+        latitude: 17.4947,
+        longitude: 78.3996,
+        accuracy: 4.5,
+        address: 'Metro Pillar 742, Kukatpally, Hyderabad, Telangana',
+      },
       summary:
         input.overrides?.summary ??
         '3 loose connections detected on Terminal Block B with severe thermal oxidation. Phase R feeder cable has chafed insulation. Urgent torquing required before morning shift.',
@@ -202,6 +210,12 @@ export class SimulatedEngine implements ReportEngine {
       panelId: input.overrides?.panelId,
       isPanelIdMissing: input.overrides?.panelId ? false : extracted.isPanelIdMissing,
       overallConfidence: verified.overallConfidence,
+      confidenceBreakdown: {
+        findings: 0.94,
+        category: 0.97,
+        deadline: 0.81,
+        location: 0.99,
+      },
     };
 
     onProgress?.({

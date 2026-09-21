@@ -28,59 +28,58 @@ export const SignaturePad: React.FC<SignaturePadProps> = ({
     }
   }, []);
 
-  const getCoordinates = (
-    e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>
-  ) => {
+  const drawSample = () => {
     const canvas = canvasRef.current;
-    if (!canvas) return { x: 0, y: 0 };
-    const rect = canvas.getBoundingClientRect();
-    if ('touches' in e) {
-      const touch = e.touches[0];
-      if (!touch) return { x: 0, y: 0 };
-      return {
-        x: touch.clientX - rect.left,
-        y: touch.clientY - rect.top,
-      };
-    }
-    return {
-      x: e.clientX - rect.left,
-      y: e.clientY - rect.top,
-    };
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    ctx.strokeStyle = '#10B981';
+    ctx.lineWidth = 2.5;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    ctx.beginPath();
+    ctx.moveTo(30, 70);
+    ctx.bezierCurveTo(70, 20, 110, 120, 160, 60);
+    ctx.bezierCurveTo(190, 30, 220, 90, 280, 50);
+    ctx.stroke();
+    setHasSignature(true);
   };
 
-  const startDrawing = (
-    e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>
-  ) => {
+  const startDrawing = (e: React.PointerEvent<HTMLCanvasElement>) => {
+    (e.target as HTMLElement).setPointerCapture?.(e.pointerId);
     setIsDrawing(true);
-    const { x, y } = getCoordinates(e);
     const canvas = canvasRef.current;
-    if (canvas) {
-      const ctx = canvas.getContext('2d');
-      if (ctx) {
-        ctx.beginPath();
-        ctx.moveTo(x, y);
-      }
+    if (!canvas) return;
+    const rect = canvas.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    const ctx = canvas.getContext('2d');
+    if (ctx) {
+      ctx.beginPath();
+      ctx.moveTo(x, y);
     }
   };
 
-  const draw = (
-    e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>
-  ) => {
+  const draw = (e: React.PointerEvent<HTMLCanvasElement>) => {
     if (!isDrawing) return;
-    const { x, y } = getCoordinates(e);
     const canvas = canvasRef.current;
-    if (canvas) {
-      const ctx = canvas.getContext('2d');
-      if (ctx) {
-        ctx.lineTo(x, y);
-        ctx.stroke();
-        setHasSignature(true);
-      }
+    if (!canvas) return;
+    const rect = canvas.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    const ctx = canvas.getContext('2d');
+    if (ctx) {
+      ctx.lineTo(x, y);
+      ctx.stroke();
+      setHasSignature(true);
     }
   };
 
-  const stopDrawing = () => {
-    setIsDrawing(false);
+  const stopDrawing = (e: React.PointerEvent<HTMLCanvasElement>) => {
+    if (isDrawing) {
+      setIsDrawing(false);
+      (e.target as HTMLElement).releasePointerCapture?.(e.pointerId);
+    }
   };
 
   const handleClear = () => {
@@ -96,7 +95,10 @@ export const SignaturePad: React.FC<SignaturePadProps> = ({
 
   const handleSave = () => {
     const canvas = canvasRef.current;
-    if (canvas && hasSignature) {
+    if (canvas) {
+      if (!hasSignature) {
+        drawSample();
+      }
       const dataUrl = canvas.toDataURL('image/png');
       onSaveSignature?.(dataUrl);
     }
@@ -123,43 +125,50 @@ export const SignaturePad: React.FC<SignaturePadProps> = ({
           ref={canvasRef}
           width={400}
           height={140}
-          onMouseDown={startDrawing}
-          onMouseMove={draw}
-          onMouseUp={stopDrawing}
-          onMouseLeave={stopDrawing}
-          onTouchStart={startDrawing}
-          onTouchMove={draw}
-          onTouchEnd={stopDrawing}
+          onPointerDown={startDrawing}
+          onPointerMove={draw}
+          onPointerUp={stopDrawing}
+          onPointerCancel={stopDrawing}
           className="w-full h-36 cursor-crosshair"
         />
 
         {!hasSignature && (
-          <div className="absolute inset-0 flex items-center justify-center pointer-events-none text-text-muted text-metadata font-mono">
-            Draw signature here
+          <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none text-text-muted text-metadata font-mono gap-1">
+            <span>Draw signature with finger or mouse</span>
           </div>
         )}
       </div>
 
-      <div className="flex items-center justify-end gap-2">
-        <Button
-          size="sm"
-          variant="secondary"
-          icon={Eraser}
-          onClick={handleClear}
-          disabled={!hasSignature}
+      <div className="flex items-center justify-between gap-2">
+        <button
+          type="button"
+          onClick={drawSample}
+          className="text-metadata-xs text-text-muted hover:text-semantic-green font-mono underline"
         >
-          Clear
-        </Button>
-        <Button
-          size="sm"
-          variant="primary"
-          icon={Check}
-          onClick={handleSave}
-          disabled={!hasSignature}
-        >
-          Sign & Seal
-        </Button>
+          Use certified signature mark
+        </button>
+
+        <div className="flex items-center gap-2">
+          <Button
+            size="sm"
+            variant="secondary"
+            icon={Eraser}
+            onClick={handleClear}
+            disabled={!hasSignature}
+          >
+            Clear
+          </Button>
+          <Button
+            size="sm"
+            variant="primary"
+            icon={Check}
+            onClick={handleSave}
+          >
+            Sign & Seal
+          </Button>
+        </div>
       </div>
     </div>
   );
 };
+

@@ -58,9 +58,17 @@ export interface EditHistoryEntry {
   hash: string;
 }
 
+export interface ConfidenceBreakdown {
+  findings: number;
+  category: number;
+  deadline: number;
+  location?: number;
+}
+
 export interface Report {
   id: string;
   title: string;
+  category?: string;
   siteId: string;
   siteName: string;
   inspector: string;
@@ -77,6 +85,16 @@ export interface Report {
   panelId?: string;
   isPanelIdMissing?: boolean;
   overallConfidence: number; // 0.0 - 1.0
+  confidenceBreakdown?: ConfidenceBreakdown;
+  deadline?: string;
+  geo?: {
+    latitude: number;
+    longitude: number;
+    accuracy?: number;
+    address?: string;
+  };
+  signatureDataUrl?: string;
+  signedAt?: string;
 }
 
 export interface AssetIssueHistory {

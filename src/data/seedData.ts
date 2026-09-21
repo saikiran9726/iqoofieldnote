@@ -358,6 +358,7 @@ export async function generateSeedReports(): Promise<Report[]> {
   const heroReport: Report = {
     id: 'rep-hero-001',
     title: 'Electrical Inspection — Substation Panel Audit',
+    category: 'ELECTRICAL INSPECTION',
     siteId: 'site-kukatpally',
     siteName: 'Kukatpally Metro Site',
     inspector: 'K. S. Rao (Field Eng #104)',
@@ -365,6 +366,13 @@ export async function generateSeedReports(): Promise<Report[]> {
     status: 'in_review',
     priority: 'high',
     priorityReason: 'Critical thermal load and loose terminals pose immediate fire hazard',
+    deadline: '19 Sep 2026 morning',
+    geo: {
+      latitude: 17.4947,
+      longitude: 78.3996,
+      accuracy: 4.5,
+      address: 'Metro Pillar 742, Kukatpally, Hyderabad, Telangana',
+    },
     summary:
       '3 loose connections detected on Terminal Block B with severe thermal oxidation. Phase R feeder cable has chafed insulation exposing conductor. Immediate torquing and sleeve replacement mandated before morning shift.',
     findings: SEED_FINDINGS.filter((f) => f.reportId === 'rep-hero-001'),
@@ -375,6 +383,12 @@ export async function generateSeedReports(): Promise<Report[]> {
     panelId: undefined, // Initially missing per specification
     isPanelIdMissing: true, // Prompts QuestionCard
     overallConfidence: 0.94,
+    confidenceBreakdown: {
+      findings: 0.94,
+      category: 0.97,
+      deadline: 0.81,
+      location: 0.99,
+    },
   };
 
   const report2: Report = {

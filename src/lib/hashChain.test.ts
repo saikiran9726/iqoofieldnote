@@ -100,4 +100,40 @@ describe('Tamper-Evident Hash Chain', () => {
     expect(result.tamperedIndex).toBe(1);
     expect(result.error).toContain('Broken hash link');
   });
+
+  it('recomputeChain recalculates valid hashes after modification', async () => {
+    const entry1 = await createEditHistoryEntry({
+      entityId: 'rep-hero-001',
+      entityType: 'report',
+      field: 'panelId',
+      before: null,
+      after: 'PANEL-204',
+      prevHash: GENESIS_HASH,
+    });
+
+    const entry2 = await createEditHistoryEntry({
+      entityId: 'rep-hero-001',
+      entityType: 'report',
+      field: 'priority',
+      before: 'medium',
+      after: 'high',
+      prevHash: entry1.hash,
+    });
+
+    // Tamper entry 1
+    const tampered1 = { ...entry1, after: 'PANEL-MUTATED' };
+    const tamperedChain = [tampered1, entry2];
+
+    const initialVerify = await verifyChain(tamperedChain);
+    expect(initialVerify.valid).toBe(false);
+
+    // Recompute
+    const { recomputeChain } = await import('./hashChain');
+    const restoredChain = await recomputeChain(tamperedChain);
+    const restoredVerify = await verifyChain(restoredChain);
+
+    expect(restoredVerify.valid).toBe(true);
+    expect(restoredChain[0]?.hash).not.toBe(entry1.hash);
+  });
 });
+

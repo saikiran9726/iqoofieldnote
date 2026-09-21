@@ -136,3 +136,61 @@
 ### Known Gaps
 - None for Phase 2. Subsequent Phase 3 will build out the complete Report Detail Dossier view, inline interactive edits, missing field resolution prompts, tamper-evident hash chain inspection, and interactive audio scrubber.
 
+---
+
+## Phase 3: Structured Report Editor, Missing Info, Transcript Linking, Sign-off & Tamper Ledger
+
+### What Was Done
+- **Structured Report Editor (Screen 5 & 6)**:
+  - Header with Category badge (`ELECTRICAL INSPECTION`), Site Name (`Kukatpally Metro Site`), and creation timestamp.
+  - GPS Geofencing with `navigator.geolocation` fallback displaying coordinates (`17.4947° N, 78.3996° E`) and manual location override bottom sheet (`Location unavailable, add manually`).
+  - High Priority alert card with reason line: *"Critical thermal load and loose terminals pose immediate fire hazard"*.
+  - Confidence Breakdown card (`ConfidenceBreakdownCard`) featuring animated progress bars for Category (97%), Findings (94%), Deadline (81%), and Location (99%), dynamically reacting to user edits.
+- **Inline Tap-to-Edit & Undo (`ReportField`)**:
+  - Direct inline editing on every field (Category, Panel ID, Site Name, Deadline, Inspector, Priority, Summary) with save (`Enter`), cancel (`Escape`), and full focus rings (`focus-visible:ring-2 focus-visible:ring-semantic-green`).
+  - Undo capability (`RotateCcw`) reverting fields to prior states in the cryptographic ledger.
+  - Every single edit creates and appends a SHA-256 chained `EditHistoryEntry`.
+- **Missing Entity Resolution (`QuestionCard` / Screen 6)**:
+  - Sliding amber prompt: *"One thing is missing / What is the Panel ID?"*
+  - Dual input modalities:
+    1. Voice response using microphone listening state (simulating real transcription of `"Panel 204"` &rarr; `"PANEL-204"`).
+    2. Text entry or single-click suggestion `"Assign PANEL-204"`.
+  - On confirm, the field animates smoothly into its slot with an amber-to-green transition, sets the report's `panelId = 'PANEL-204'`, `isPanelIdMissing = false`, and announces the resolution via an `aria-live="polite"` live region.
+- **Interactive Transcript Drawer & Phrase Linking (`TranscriptDrawer` / Screen 7)**:
+  - Displays code-mixed Telugu + English transcript (`tr-hero-001`) with exact timestamps and character offsets.
+  - Interactive phrase links:
+    - `"Panel daggara loose connections"` &rarr; pulses & scrolls to Panel ID field.
+    - `"Three loose connections observed at terminal block B"` &rarr; pulses & scrolls to Finding #1.
+    - `"repati morning shift lopala action complete kaavali"` &rarr; pulses & scrolls to Action Items / Deadline.
+  - Quiet report header badge: `"Spoken in Telugu · English"` (displayed only once on the report, never duplicated across individual cards).
+  - Built-in audio playback scrubber with play/pause and progress tracking.
+- **Digital Inspection Sheet View (Screen 8 / Final Report)**:
+  - Official ISO-19011 field inspection sheet view mode with print/export ready typography.
+  - Findings table with recurrence counters (e.g. `3x recurring on PANEL-204`).
+  - Action items with interactive checkbox toggles recording chained audit entries.
+  - Evidence thumbnails grid.
+- **Cryptographic Inspector Sign-Off (`SignaturePad`)**:
+  - Touch and mouse drawing using modern `PointerEvents` (`pointerdown`, `pointermove`, `pointerup`, `setPointerCapture`).
+  - "Use certified signature mark" helper and "Sign & Seal" saving the signature image to IndexedDB.
+  - Renders sealed and signed badge with timestamp.
+- **Tamper-Evident Hash Audit Ledger Panel**:
+  - Chronological audit blocks displaying truncated SHA-256 hashes (`prevHash`, `hash`, field, before/after values).
+  - **"Verify Chain"** button executing `verifyChain()` and reporting cryptographic seal integrity.
+  - **"Tamper Entry (Dev Test)"** button: mutates a stored audit entry value to demonstrate instant cryptographic tamper detection with exact mismatch error.
+  - **"Restore Ledger"** button: recomputes the chain via `recomputeChain()` to restore cryptographic integrity.
+- **Quality & Spec Verification**:
+  - `npm test`: Passed (13/13 unit tests across 4 suites).
+  - `npm run typecheck`: Passed (0 errors).
+  - `npm run lint`: Passed (0 warnings, 0 errors).
+  - `npm run build`: Passed (0 errors, 33 precached PWA entries).
+  - `npm run test:e2e` (Playwright): Passed — Verified Capture &rarr; Recording &rarr; Processing &rarr; Editor &rarr; QuestionCard resolution &rarr; Transcript linking &rarr; Signature sealing &rarr; Inspection sheet view &rarr; Cryptographic tamper test &rarr; Tamper restore at 390x844 mobile and 1280x800 desktop.
+  - All 12 screenshots saved to `docs/screens/phase-3/` with 0 console errors.
+
+### Assumptions Logged
+1. PointerEvents are utilized for the signature canvas to provide consistent drawing fidelity across mouse, stylus, and touch environments.
+2. In Phase 3, the "Add to report" action opens an attachment bottom sheet indicating future Phase 5 sub-module integrations without dead buttons.
+
+### Known Gaps
+- None for Phase 3. Subsequent Phase 4 will implement the full Reports List with multi-filter pills, search indexing, and bulk actions.
+
+

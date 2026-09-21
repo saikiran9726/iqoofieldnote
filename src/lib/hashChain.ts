@@ -143,3 +143,40 @@ export async function verifyChain(
 
   return { valid: true };
 }
+
+/**
+ * Recomputes the entire hash chain from the first entry to restore cryptographic integrity
+ */
+export async function recomputeChain(
+  chain: EditHistoryEntry[]
+): Promise<EditHistoryEntry[]> {
+  if (!chain || chain.length === 0) return [];
+
+  let currentPrevHash = GENESIS_HASH;
+  const newChain: EditHistoryEntry[] = [];
+
+  for (const entry of chain) {
+    const dataPayload = {
+      id: entry.id,
+      entityId: entry.entityId,
+      entityType: entry.entityType,
+      field: entry.field,
+      before: entry.before,
+      after: entry.after,
+      timestamp: entry.timestamp,
+    };
+
+    const newHash = await computeEntryHash(currentPrevHash, dataPayload);
+    const updatedEntry: EditHistoryEntry = {
+      ...entry,
+      prevHash: currentPrevHash,
+      hash: newHash,
+    };
+
+    newChain.push(updatedEntry);
+    currentPrevHash = newHash;
+  }
+
+  return newChain;
+}
+
