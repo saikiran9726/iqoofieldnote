@@ -305,5 +305,64 @@
 ### Known Gaps
 - None. Phase 4.5 honesty and verification pass complete.
 
+---
+
+## Phase 5: Reports List Filters, Import Hub, QR Scanner, Camera OCR, Ask Your Reports, and Add to Report
+
+### What Was Done
+- **Reports List (Spec 9)**:
+  - Added filter chips: `ALL DOSSIERS`, `HIGH PRIORITY`, `OPEN`, `COMPLETED`, with live item counters.
+  - Added Site selector dropdown (`All Sites`, `Kukatpally Metro Site`, `Miyapur Depot`, `Gachibowli Hub`).
+  - Restricted colored cards strictly to HIGH / CRITICAL priority (`bg-semantic-red-surface/15 border-2 border-semantic-red-border`), while low and medium priority cards use neutral monochrome borders and surfaces.
+  - Updated card footer to consistently display `"{findings.length} findings · {actions.length} actions"`.
+  - Added EmptyState when search or filter returns zero matches (`"No Matching Dossiers Found"`).
+- **Import Hub Bottom Sheet (Spec 3)**:
+  - Ingestion sheet accessible from Capture Home ("Import") with 8 dedicated channels: Voice Recording, Document Camera, Photo Gallery, Audio File (`.m4a`, `.mp3`, `.wav`, `.opus`), PDF Document, Data Sheet (`.txt`, `.csv`, `.json`), Clipboard Text, and QR / Barcode Scanner.
+  - Web Share Target manifest entry (`/import-target`) with Android PWA explanation banner: `"Direct sharing from system apps into FieldNote works only for the installed Android PWA"`.
+  - Multi-select audio file parsing via `SimulatedEngine.buildReport()` with automatic hash-chained reports created in Dexie.
+  - Supported format validation with specific `"Unsupported file format"` ErrorState displaying supported formats and retry/dismiss controls.
+  - Interactive Clipboard Text fallback modal allowing engineers to paste observation text and compile structured dossiers.
+- **QR / Asset Scanner (Spec 14)**:
+  - Route `/scanner` with camera viewfinder, corner brackets, and native `BarcodeDetector` support with bundled fallback (`qr-scanner`).
+  - Equipment telemetry resolution against Dexie database: displays `Detected: PANEL-204`, `Previous reports: 4`, `Open issues: 2`, and primary site name.
+  - Action button `"Start Report for Asset"` initializing a new linked report for the identified equipment tag.
+  - Camera error handling showing an honest ErrorState with manual Asset ID entry input and lookup fallback.
+- **Camera / Document OCR (Spec 13)**:
+  - Route `/ocr` with document-corner viewfinder overlay brackets and `getUserMedia` live video stream.
+  - Multi-page document capture counter supporting up to 3 pages with `"3 pages detected"` badge.
+  - Extract text via simulated OCR with honest `"Simulated OCR"` badges in accordance with zero-claim honesty rules.
+  - Extracted fields review card displaying equipment tag, model, rated specs, and observed hazards with confidence percentages and `"Compile Inspection Report"` action.
+  - OCR failure simulation showing specific ErrorState with `"Document Retake Tips"` and alignment checklist.
+- **Ask Your Reports / Search (Spec 12)**:
+  - Field-search UI (not conversational chat) with prominent `"LOCAL DATA ONLY"` offline badge.
+  - Client-side Dexie query parsing without any cloud network calls.
+  - Preset query chip `"Show all high-priority electrical issues at Kukatpally"` parsing to site, priority, and category filters with aggregated results summary banner (`"3 reports, 7 findings, 4 open actions"`).
+  - Preset query chip `"Which assets had repeated issues?"` parsing to repeated asset analysis spotlighting `PANEL-204` (3 recurring loose connection hazards across 4 linked dossiers).
+  - Empty search state when no local records match.
+  - Simulated voice search trigger.
+- **Add to Report (Spec 6)**:
+  - Added `"Add"` action in `ReportDetailScreen` header opening the `"Add to Field Dossier"` bottom sheet.
+  - Interactive Supplementary Voice Note addendum recorder/input: appends follow-up voice observation, re-runs entity extraction, tags new items with `[NEW]` (findings) and `[NEWLY APPENDED]` (actions).
+  - Chained 3 new edit blocks onto the SHA-256 tamper-evident hash ledger, verified intact with `"SHA-256 Ledger Intact"`.
+  - Added Thermal Sensor Telemetry option logging calibrated FLIR infrared readings.
+- **Strict Verification & Screen Capture**:
+  - Captured all 30 mobile (390x844) and desktop (1280x800) screenshots + exported PDF into `docs/screens/phase-5/`.
+  - Zero browser console errors detected.
+
+### Quality & Verification Results
+- `npm run typecheck`: Passed (0 errors).
+- `npm run lint`: Passed (0 warnings, 0 errors).
+- `npm test`: Passed (13/13 unit tests passing).
+- `npm run build`: Passed (clean production build, 37 precached PWA assets).
+- `node scripts/capture-screens.mjs`: Passed (0 console errors, all 30 screenshots captured).
+
+### Assumptions Logged
+1. Per spec 13, bundling multi-megabyte Tesseract traineddata offline violates offline lean principles; OCR extraction is simulated using seeded equipment nameplate data and clearly labelled "Simulated OCR" in UI and documentation.
+2. Web Share Target is declared in `vite.config.ts` PWA manifest with an explanatory banner in the Import Hub noting it functions on installed Android PWAs.
+3. In `ReportCard`, only High and Critical priority cards use red borders and surface tints; low and medium priority cards remain clean neutral monochrome per Spec 9.
+
+### Known Gaps
+- None. Phase 5 complete.
+
 
 

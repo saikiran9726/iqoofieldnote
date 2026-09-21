@@ -12,13 +12,14 @@ import {
 import { useReportsStore } from '../../lib/stores';
 import { resetDemoData } from '../../data/db';
 
-type FilterType = 'all' | 'high' | 'in_review' | 'verified' | 'kukatpally' | 'miyapur' | 'gachibowli';
+type FilterType = 'all' | 'high' | 'open' | 'completed' | 'kukatpally' | 'miyapur' | 'gachibowli';
 
 export const ReportsScreen: React.FC = () => {
   const navigate = useNavigate();
   const { reports, loadReports, assignMissingEntity } = useReportsStore();
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [activeFilter, setActiveFilter] = useState<FilterType>('all');
+  const [selectedSite, setSelectedSite] = useState<string>('all');
 
   useEffect(() => {
     loadReports();
@@ -31,16 +32,21 @@ export const ReportsScreen: React.FC = () => {
       // Filter tab criteria
       if (activeFilter === 'high') {
         if (report.priority !== 'high' && report.priority !== 'critical') return false;
-      } else if (activeFilter === 'in_review') {
-        if (report.status !== 'in_review') return false;
-      } else if (activeFilter === 'verified') {
-        if (report.status !== 'verified') return false;
+      } else if (activeFilter === 'open') {
+        if (report.status === 'verified' || report.status === 'archived') return false;
+      } else if (activeFilter === 'completed') {
+        if (report.status !== 'verified' && report.status !== 'archived') return false;
       } else if (activeFilter === 'kukatpally') {
         if (!report.siteName.toLowerCase().includes('kukatpally')) return false;
       } else if (activeFilter === 'miyapur') {
         if (!report.siteName.toLowerCase().includes('miyapur')) return false;
       } else if (activeFilter === 'gachibowli') {
         if (!report.siteName.toLowerCase().includes('gachibowli')) return false;
+      }
+
+      // Site dropdown filter if specified
+      if (selectedSite !== 'all') {
+        if (!report.siteName.toLowerCase().includes(selectedSite.toLowerCase())) return false;
       }
 
       // Search query criteria
@@ -60,7 +66,7 @@ export const ReportsScreen: React.FC = () => {
 
       return true;
     });
-  }, [reports, activeFilter, searchQuery]);
+  }, [reports, activeFilter, selectedSite, searchQuery]);
 
   return (
     <div className="space-y-6 max-w-4xl mx-auto pb-16">
@@ -110,14 +116,29 @@ export const ReportsScreen: React.FC = () => {
 
       {/* Search and Filters */}
       <div className="space-y-3">
-        <SearchBar
-          value={searchQuery}
-          onChange={(val) => setSearchQuery(val)}
-          onClear={() => setSearchQuery('')}
-          placeholder="Search by title, findings, panel ID, site, or inspector..."
-        />
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+          <div className="flex-1">
+            <SearchBar
+              value={searchQuery}
+              onChange={(val) => setSearchQuery(val)}
+              onClear={() => setSearchQuery('')}
+              placeholder="Search by title, findings, panel ID, site, or inspector..."
+            />
+          </div>
+          <select
+            value={selectedSite}
+            onChange={(e) => setSelectedSite(e.target.value)}
+            aria-label="Filter by site"
+            className="px-3 py-2.5 rounded-xl bg-bg-surface1 border border-border-default text-text-primary text-body-sm font-medium focus:outline-none focus:border-semantic-green shrink-0"
+          >
+            <option value="all">All Sites</option>
+            <option value="kukatpally">Kukatpally Metro Site</option>
+            <option value="miyapur">Miyapur Depot</option>
+            <option value="gachibowli">Gachibowli Hub</option>
+          </select>
+        </div>
 
-        {/* Filter Chips Bar */}
+        {/* Filter Chips Bar (Spec 9: All, High, Open, Completed, Site) */}
         <div className="flex items-center gap-2 overflow-x-auto pb-1">
           <FilterChip
             label="ALL DOSSIERS"
@@ -132,16 +153,16 @@ export const ReportsScreen: React.FC = () => {
             count={reports.filter((r) => r.priority === 'high' || r.priority === 'critical').length}
           />
           <FilterChip
-            label="IN REVIEW"
-            active={activeFilter === 'in_review'}
-            onClick={() => setActiveFilter('in_review')}
-            count={reports.filter((r) => r.status === 'in_review').length}
+            label="OPEN"
+            active={activeFilter === 'open'}
+            onClick={() => setActiveFilter('open')}
+            count={reports.filter((r) => r.status !== 'verified' && r.status !== 'archived').length}
           />
           <FilterChip
-            label="VERIFIED"
-            active={activeFilter === 'verified'}
-            onClick={() => setActiveFilter('verified')}
-            count={reports.filter((r) => r.status === 'verified').length}
+            label="COMPLETED"
+            active={activeFilter === 'completed'}
+            onClick={() => setActiveFilter('completed')}
+            count={reports.filter((r) => r.status === 'verified' || r.status === 'archived').length}
           />
           <FilterChip
             label="KUKATPALLY"

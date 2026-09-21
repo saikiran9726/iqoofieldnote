@@ -54,6 +54,11 @@ export const ActionCard: React.FC<ActionCardProps> = ({ action, onToggleStatus }
           )}
 
           <div className="flex flex-wrap items-center gap-2 pt-1 text-metadata text-text-muted">
+            {action.isNew && (
+              <span className="px-2 py-0.5 rounded text-metadata-xs font-mono font-bold bg-semantic-amber-surface text-semantic-amber-text border border-semantic-amber-border">
+                [NEWLY APPENDED]
+              </span>
+            )}
             <PriorityBadge priority={action.priority} size="sm" />
             {action.assignee && (
               <span className="flex items-center gap-1 font-mono text-text-secondary">

@@ -18,6 +18,9 @@ import {
   SlidersHorizontal,
   Repeat,
   ChevronRight,
+  Mic,
+  Thermometer,
+  Camera,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -54,6 +57,7 @@ export const ReportDetailScreen: React.FC = () => {
     saveSignature,
     tamperAuditEntry,
     restoreAuditChain,
+    appendVoiceNoteToReport,
   } = useReportsStore();
 
   const [report, setReport] = useState<Report | null>(null);
@@ -61,6 +65,11 @@ export const ReportDetailScreen: React.FC = () => {
   const [transcript, setTranscript] = useState<Transcript | null>(null);
   const [isExportOpen, setIsExportOpen] = useState<boolean>(false);
   const [isAddOpen, setIsAddOpen] = useState<boolean>(false);
+  const [activeAddOption, setActiveAddOption] = useState<'menu' | 'voice' | 'thermal'>('menu');
+  const [voiceAddendumText, setVoiceAddendumText] = useState<string>(
+    'Follow-up inspection: Re-torqued terminal lugs 4 and 5 to 18 Nm. Replaced Phase R heat-resistant cable sleeve. Verified zero thermal delta.'
+  );
+  const [isAppendingVoice, setIsAppendingVoice] = useState<boolean>(false);
   const [isLocationModalOpen, setIsLocationModalOpen] = useState<boolean>(false);
   const [customLocation, setCustomLocation] = useState<string>('');
   const [highlightedFieldId, setHighlightedFieldId] = useState<string | null>(null);
@@ -914,6 +923,11 @@ export const ReportDetailScreen: React.FC = () => {
                       <span className="text-metadata-xs font-mono text-text-muted">
                         {f.category}
                       </span>
+                      {f.isNew && (
+                        <span className="px-1.5 py-0.2 rounded text-[10px] font-mono font-bold bg-semantic-amber-surface text-semantic-amber-text border border-semantic-amber-border">
+                          [NEW]
+                        </span>
+                      )}
                       {f.occurrences && f.occurrences > 1 && (
                         <span className="px-1.5 py-0.2 rounded text-[10px] font-mono font-bold bg-semantic-amber-surface text-semantic-amber-text border border-semantic-amber-border">
                           {f.occurrences}x recurring
@@ -942,7 +956,14 @@ export const ReportDetailScreen: React.FC = () => {
                   className="p-3.5 rounded-xl bg-bg-surface2 border border-border-subtle flex items-center justify-between gap-3"
                 >
                   <div className="space-y-0.5">
-                    <p className="text-body-sm font-semibold text-text-primary">{act.title}</p>
+                    <div className="flex items-center gap-2">
+                      <p className="text-body-sm font-semibold text-text-primary">{act.title}</p>
+                      {act.isNew && (
+                        <span className="px-1.5 py-0.2 rounded text-[10px] font-mono font-bold bg-semantic-amber-surface text-semantic-amber-text border border-semantic-amber-border">
+                          [NEWLY APPENDED]
+                        </span>
+                      )}
+                    </div>
                     <p className="text-metadata-xs font-mono text-text-muted">
                       Assignee: {act.assignee} · Due: {act.dueDate ? new Date(act.dueDate).toLocaleDateString() : 'Immediate'}
                     </p>
@@ -1053,57 +1074,197 @@ export const ReportDetailScreen: React.FC = () => {
         </form>
       </BottomSheet>
 
-      {/* Add To Report Sheet (Scheduled for Phase 5) */}
+      {/* Add To Report Sheet (Spec 6 Add to Report) */}
       <BottomSheet
         isOpen={isAddOpen}
-        onClose={() => setIsAddOpen(false)}
-        title="Add to Field Dossier"
-        subtitle="Attach additional media, sensor telemetry, or sub-audits"
+        onClose={() => {
+          setIsAddOpen(false);
+          setActiveAddOption('menu');
+        }}
+        title={
+          activeAddOption === 'voice'
+            ? 'Supplementary Voice Note'
+            : activeAddOption === 'thermal'
+            ? 'Thermal Sensor Log'
+            : 'Add to Field Dossier'
+        }
+        subtitle={
+          activeAddOption === 'voice'
+            ? 'Transcribes voice memo, extracts new findings, and updates hash chain'
+            : activeAddOption === 'thermal'
+            ? 'Record calibrated infrared temperature telemetry to dossier'
+            : 'Attach additional media, sensor telemetry, or voice addendums'
+        }
       >
-        <div className="space-y-3">
-          {[
-            {
-              title: 'Capture Inspection Photo',
-              desc: 'Take photo with camera to attach GPS geotagged evidence',
-              badge: 'Camera Ready',
-            },
-            {
-              title: 'Thermal Sensor Log',
-              desc: 'Import infrared FLIR thermal scan measurement package',
-              badge: 'Phase 5',
-            },
-            {
-              title: 'Supplementary Audio Note',
-              desc: 'Record addendum voice memo to append to transcript ledger',
-              badge: 'Phase 5',
-            },
-          ].map((item, idx) => (
+        {activeAddOption === 'menu' && (
+          <div className="space-y-3">
             <div
-              key={idx}
+              onClick={() => setActiveAddOption('voice')}
+              className="p-4 rounded-xl bg-bg-surface2 border border-border-default hover:border-border-strong hover:bg-bg-hover transition-all flex items-start justify-between gap-3 cursor-pointer"
+            >
+              <div className="flex items-start gap-3">
+                <div className="p-2 rounded-lg bg-bg-surface1 border border-border-subtle text-semantic-amber shrink-0">
+                  <Mic className="w-5 h-5" />
+                </div>
+                <div className="space-y-0.5">
+                  <h5 className="text-body-sm font-bold text-text-primary">
+                    Supplementary Voice Note
+                  </h5>
+                  <p className="text-metadata text-text-muted">
+                    Record addendum voice memo to re-extract and append new findings
+                  </p>
+                </div>
+              </div>
+              <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase bg-semantic-amber-surface text-semantic-amber-text border border-semantic-amber-border shrink-0">
+                Voice Engine
+              </span>
+            </div>
+
+            <div
+              onClick={() => setActiveAddOption('thermal')}
+              className="p-4 rounded-xl bg-bg-surface2 border border-border-default hover:border-border-strong hover:bg-bg-hover transition-all flex items-start justify-between gap-3 cursor-pointer"
+            >
+              <div className="flex items-start gap-3">
+                <div className="p-2 rounded-lg bg-bg-surface1 border border-border-subtle text-semantic-green shrink-0">
+                  <Thermometer className="w-5 h-5" />
+                </div>
+                <div className="space-y-0.5">
+                  <h5 className="text-body-sm font-bold text-text-primary">
+                    Thermal Sensor Telemetry
+                  </h5>
+                  <p className="text-metadata text-text-muted">
+                    Import FLIR thermal scan measurement package and temperature delta
+                  </p>
+                </div>
+              </div>
+              <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase bg-semantic-green-surface text-semantic-green-text border border-semantic-green-border shrink-0">
+                Telemetry
+              </span>
+            </div>
+
+            <div
               onClick={() => {
-                alert(`${item.title}: Scheduled for Phase 5 integration.`);
                 setIsAddOpen(false);
+                navigate('/ocr');
               }}
               className="p-4 rounded-xl bg-bg-surface2 border border-border-default hover:border-border-strong hover:bg-bg-hover transition-all flex items-start justify-between gap-3 cursor-pointer"
             >
-              <div className="space-y-0.5">
-                <h5 className="text-body-sm font-bold text-text-primary">
-                  {item.title}
-                </h5>
-                <p className="text-metadata text-text-muted">{item.desc}</p>
+              <div className="flex items-start gap-3">
+                <div className="p-2 rounded-lg bg-bg-surface1 border border-border-subtle text-text-primary shrink-0">
+                  <Camera className="w-5 h-5" />
+                </div>
+                <div className="space-y-0.5">
+                  <h5 className="text-body-sm font-bold text-text-primary">
+                    Capture Document or Photo
+                  </h5>
+                  <p className="text-metadata text-text-muted">
+                    Open document camera to scan site records or add geotagged evidence
+                  </p>
+                </div>
               </div>
               <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase bg-bg-surface1 text-text-muted border border-border-subtle shrink-0">
-                {item.badge}
+                Camera Ready
               </span>
             </div>
-          ))}
 
-          <div className="pt-2">
-            <Button fullWidth variant="ghost" onClick={() => setIsAddOpen(false)}>
-              Close
-            </Button>
+            <div className="pt-2">
+              <Button fullWidth variant="ghost" onClick={() => setIsAddOpen(false)}>
+                Close
+              </Button>
+            </div>
           </div>
-        </div>
+        )}
+
+        {activeAddOption === 'voice' && (
+          <div className="space-y-4">
+            <div className="p-3 rounded-xl bg-bg-surface2 border border-border-subtle text-metadata font-mono space-y-1">
+              <span className="text-text-muted uppercase text-[10px]">Addendum Note Content</span>
+              <p className="text-text-secondary text-body-sm font-sans">
+                Speak or type follow-up observations. New findings and tasks will be flagged with [NEW] and chained to the cryptographic ledger.
+              </p>
+            </div>
+
+            <textarea
+              rows={3}
+              value={voiceAddendumText}
+              onChange={(e) => setVoiceAddendumText(e.target.value)}
+              placeholder="e.g. Follow-up inspection: Re-torqued terminal lugs 4 and 5 to 18 Nm..."
+              className="w-full px-3.5 py-2.5 rounded-xl bg-bg-surface2 border border-border-default text-text-primary text-body-sm focus:outline-none focus:border-semantic-green font-sans"
+            />
+
+            <div className="flex items-center justify-end gap-2 pt-1">
+              <Button
+                variant="ghost"
+                type="button"
+                onClick={() => setActiveAddOption('menu')}
+                disabled={isAppendingVoice}
+              >
+                Back
+              </Button>
+              <Button
+                variant="primary"
+                type="button"
+                disabled={isAppendingVoice || !voiceAddendumText.trim()}
+                onClick={async () => {
+                  setIsAppendingVoice(true);
+                  await appendVoiceNoteToReport(report.id, voiceAddendumText);
+                  await loadReport();
+                  setIsAppendingVoice(false);
+                  setActiveAddOption('menu');
+                  setIsAddOpen(false);
+                }}
+              >
+                {isAppendingVoice ? 'Appending & Hashing...' : 'Append Voice Note'}
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {activeAddOption === 'thermal' && (
+          <div className="space-y-4">
+            <div className="p-3.5 rounded-xl bg-bg-surface2 border border-border-subtle space-y-2">
+              <div className="flex items-center justify-between text-metadata-xs font-mono">
+                <span className="text-text-muted uppercase">FLIR E8 Infrared Diagnostic</span>
+                <span className="text-semantic-green font-bold">DELTA &lt; 2.0°C (PASS)</span>
+              </div>
+              <p className="text-body-sm text-text-primary font-medium">
+                Phase R Incomer: 32.4°C · Phase Y: 31.8°C · Phase B: 32.1°C
+              </p>
+              <p className="text-metadata text-text-muted font-mono">
+                Ambient 28.5°C · Calibrated Sensor ID: FLIR-E8-7492
+              </p>
+            </div>
+
+            <div className="flex items-center justify-end gap-2 pt-1">
+              <Button
+                variant="ghost"
+                type="button"
+                onClick={() => setActiveAddOption('menu')}
+                disabled={isAppendingVoice}
+              >
+                Back
+              </Button>
+              <Button
+                variant="primary"
+                type="button"
+                disabled={isAppendingVoice}
+                onClick={async () => {
+                  setIsAppendingVoice(true);
+                  await appendVoiceNoteToReport(
+                    report.id,
+                    'Thermal Scan Check: Incomer Phase R temperature normalized to 32.4°C with zero thermal delta across phases.'
+                  );
+                  await loadReport();
+                  setIsAppendingVoice(false);
+                  setActiveAddOption('menu');
+                  setIsAddOpen(false);
+                }}
+              >
+                {isAppendingVoice ? 'Logging...' : 'Log Thermal Telemetry'}
+              </Button>
+            </div>
+          </div>
+        )}
       </BottomSheet>
 
       {/* Export Sheet */}

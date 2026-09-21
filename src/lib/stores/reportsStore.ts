@@ -17,6 +17,7 @@ interface ReportsStoreState {
   saveSignature: (reportId: string, signatureDataUrl: string) => Promise<void>;
   tamperAuditEntry: (reportId: string, entryIndex: number, fakeValue: string) => Promise<void>;
   restoreAuditChain: (reportId: string) => Promise<void>;
+  appendVoiceNoteToReport: (reportId: string, noteText?: string) => Promise<void>;
 }
 
 export const useReportsStore = create<ReportsStoreState>((set, get) => ({
@@ -280,6 +281,92 @@ export const useReportsStore = create<ReportsStoreState>((set, get) => ({
     set({
       activeReport: get().activeReport?.id === reportId ? restoredReport : get().activeReport,
       reports: get().reports.map((r) => (r.id === reportId ? restoredReport : r)),
+    });
+  },
+
+  appendVoiceNoteToReport: async (reportId: string, noteText?: string) => {
+    const report = await db.reports.get(reportId);
+    if (!report) return;
+
+    const text =
+      noteText?.trim() ||
+      'Follow-up inspection: Re-torqued terminal lugs 4 and 5 to 18 Nm. Replaced Phase R heat-resistant cable sleeve. Verified zero thermal delta.';
+
+    const newFindingId = `find-append-${Date.now()}`;
+    const newFinding: Finding = {
+      id: newFindingId,
+      reportId,
+      text: 'Follow-up verification: Terminal lugs 4 and 5 re-torqued to 18 Nm with zero heat delta.',
+      category: 'Torque & Thermal Verification',
+      severity: 'low',
+      confidence: 0.98,
+      isVerified: true,
+      assetId: report.panelId || 'PANEL-204',
+      isNew: true,
+    };
+
+    const newActionId = `act-append-${Date.now()}`;
+    const newAction: Action = {
+      id: newActionId,
+      reportId,
+      title: 'Conduct 48-hour follow-up thermal scan on Phase R incomer',
+      assignee: 'Thermal Audit Team',
+      priority: 'low',
+      status: 'todo',
+      dueDate: new Date(Date.now() + 48 * 3600 * 1000).toISOString(),
+      isCompleted: false,
+      isNew: true,
+    };
+
+    const updatedFindings = [...report.findings, newFinding];
+    const updatedActions = [...report.actions, newAction];
+    const updatedSummary = `${report.summary} [Follow-up Observation: ${text}]`;
+
+    // Chain first block: append finding
+    const lastHash1 =
+      report.editHistory.length > 0 ? report.editHistory[report.editHistory.length - 1]?.hash : undefined;
+    const editEntry1 = await createEditHistoryEntry({
+      entityId: reportId,
+      entityType: 'finding',
+      field: 'findings:appended',
+      before: report.findings.length,
+      after: updatedFindings.length,
+      prevHash: lastHash1,
+    });
+
+    // Chain second block: append action
+    const editEntry2 = await createEditHistoryEntry({
+      entityId: reportId,
+      entityType: 'action',
+      field: 'actions:appended',
+      before: report.actions.length,
+      after: updatedActions.length,
+      prevHash: editEntry1.hash,
+    });
+
+    // Chain third block: summary update
+    const editEntry3 = await createEditHistoryEntry({
+      entityId: reportId,
+      entityType: 'report',
+      field: 'summary:appended',
+      before: report.summary,
+      after: updatedSummary,
+      prevHash: editEntry2.hash,
+    });
+
+    const updatedReport: Report = {
+      ...report,
+      summary: updatedSummary,
+      findings: updatedFindings,
+      actions: updatedActions,
+      updatedAt: new Date().toISOString(),
+      editHistory: [...report.editHistory, editEntry1, editEntry2, editEntry3],
+    };
+
+    await db.reports.put(updatedReport);
+    set({
+      activeReport: get().activeReport?.id === reportId ? updatedReport : get().activeReport,
+      reports: get().reports.map((r) => (r.id === reportId ? updatedReport : r)),
     });
   },
 }));

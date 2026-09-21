@@ -386,7 +386,7 @@ export const CaptureScreen: React.FC = () => {
             size="md"
             variant="secondary"
             icon={Camera}
-            onClick={() => alert('Camera photo capture: Opens device camera stream to attach evidence.')}
+            onClick={() => navigate('/ocr')}
             className="flex-1"
           >
             Camera
@@ -406,7 +406,7 @@ export const CaptureScreen: React.FC = () => {
             size="md"
             variant="secondary"
             icon={QrCode}
-            onClick={() => alert('QR Scanner: Opens camera barcode reader for equipment tag lookup.')}
+            onClick={() => navigate('/scanner')}
             className="flex-1"
           >
             QR Scan
@@ -498,6 +498,9 @@ export const CaptureScreen: React.FC = () => {
       <ImportSheet
         isOpen={isImportSheetOpen}
         onClose={() => setIsImportSheetOpen(false)}
+        onStartVoiceCapture={() => {
+          startCapture().catch(console.error);
+        }}
       />
     </div>
   );

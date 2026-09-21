@@ -9,6 +9,8 @@ export interface ReportCardProps {
 }
 
 export const ReportCard: React.FC<ReportCardProps> = ({ report, onClick }) => {
+  const isHigh = report.priority === 'high' || report.priority === 'critical';
+
   return (
     <div
       onClick={onClick}
@@ -20,13 +22,29 @@ export const ReportCard: React.FC<ReportCardProps> = ({ report, onClick }) => {
           onClick?.();
         }
       }}
-      className="p-5 rounded-2xl bg-bg-surface1 border border-border-default hover:border-border-strong hover:bg-bg-surface2/40 transition-all cursor-pointer space-y-3.5 select-none focus:outline-none focus:border-semantic-green shadow-sm"
+      className={`
+        p-5 rounded-2xl transition-all cursor-pointer space-y-3.5 select-none focus:outline-none shadow-sm
+        ${
+          isHigh
+            ? 'bg-semantic-red-surface/15 border-2 border-semantic-red-border hover:border-semantic-red hover:shadow-md'
+            : 'bg-bg-surface1 border border-border-default hover:border-border-strong hover:bg-bg-surface2/40'
+        }
+      `}
     >
       {/* Top Meta Header */}
       <div className="flex items-start justify-between gap-3">
         <div className="space-y-1 min-w-0">
           <div className="flex flex-wrap items-center gap-2">
-            <span className="px-2 py-0.5 rounded text-metadata-xs font-mono font-medium bg-bg-surface2 text-text-secondary border border-border-subtle truncate">
+            <span
+              className={`
+                px-2 py-0.5 rounded text-metadata-xs font-mono font-medium truncate border
+                ${
+                  isHigh
+                    ? 'bg-semantic-red-surface text-semantic-red-text border-semantic-red-border/60'
+                    : 'bg-bg-surface2 text-text-secondary border-border-subtle'
+                }
+              `}
+            >
               {report.siteName}
             </span>
             <span className="flex items-center gap-1 text-metadata-xs text-text-muted font-mono">
@@ -56,25 +74,25 @@ export const ReportCard: React.FC<ReportCardProps> = ({ report, onClick }) => {
       </p>
 
       {/* Priority reason if High / Critical */}
-      {report.priorityReason && (report.priority === 'high' || report.priority === 'critical') && (
+      {report.priorityReason && isHigh && (
         <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-semantic-red-surface text-semantic-red-text border border-semantic-red-border text-metadata font-medium">
           <AlertCircle className="w-3.5 h-3.5 shrink-0" />
           <span className="truncate">{report.priorityReason}</span>
         </div>
       )}
 
-      {/* Footer Details & Counts */}
+      {/* Footer Details & Counts ("3 findings · 2 actions") */}
       <div className="pt-2 border-t border-border-subtle flex items-center justify-between text-metadata text-text-muted">
-        <div className="flex items-center gap-4">
-          <span className="flex items-center gap-1">
-            <User className="w-3 h-3 text-text-muted" />
-            <span className="text-text-primary font-mono text-metadata-xs">{report.inspector}</span>
+        <div className="flex items-center gap-3">
+          <span className="flex items-center gap-1.5">
+            <User className="w-3.5 h-3.5 text-text-muted" />
+            <span className="text-text-primary font-mono text-metadata-xs truncate max-w-[120px] sm:max-w-none">
+              {report.inspector}
+            </span>
           </span>
-          <span>
-            Findings: <strong className="text-text-primary font-mono">{report.findings.length}</strong>
-          </span>
-          <span>
-            Tasks: <strong className="text-semantic-amber font-mono">{report.actions.length}</strong>
+          <span className="text-text-muted opacity-40">•</span>
+          <span className="font-semibold text-text-primary font-mono">
+            {report.findings.length} findings · {report.actions.length} actions
           </span>
         </div>
 

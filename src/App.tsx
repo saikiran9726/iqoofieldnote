@@ -16,6 +16,8 @@ import { OfficeKitScreen } from './features/officekit';
 import { ExportScreen } from './features/export';
 import { SearchScreen } from './features/search';
 import { ComponentKitScreen } from './features/kit';
+import { ScannerScreen } from './features/scanner';
+import { OcrScreen } from './features/ocr';
 
 export const App: React.FC = () => {
   const initTheme = useThemeStore((s) => s.initTheme);
@@ -46,6 +48,8 @@ export const App: React.FC = () => {
           <Route path="/officekit" element={<OfficeKitScreen />} />
           <Route path="/export" element={<ExportScreen />} />
           <Route path="/search" element={<SearchScreen />} />
+          <Route path="/scanner" element={<ScannerScreen />} />
+          <Route path="/ocr" element={<OcrScreen />} />
           <Route path="/kit" element={<ComponentKitScreen />} />
           <Route path="*" element={<Navigate to="/capture" replace />} />
         </Route>

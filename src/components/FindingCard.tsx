@@ -19,6 +19,11 @@ export const FindingCard: React.FC<FindingCardProps> = ({ finding, onVerify }) =
           <span className="px-2 py-0.5 rounded text-metadata-xs font-mono bg-bg-surface2 text-text-muted border border-border-subtle">
             {finding.category}
           </span>
+          {finding.isNew && (
+            <span className="px-2 py-0.5 rounded text-metadata-xs font-mono font-bold bg-semantic-amber-surface text-semantic-amber-text border border-semantic-amber-border">
+              [NEW]
+            </span>
+          )}
           {finding.occurrences && finding.occurrences > 1 && (
             <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-metadata-xs font-mono font-bold bg-semantic-amber-surface text-semantic-amber-text border border-semantic-amber-border">
               <Repeat className="w-2.5 h-2.5" />

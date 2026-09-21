@@ -17,6 +17,7 @@ export interface Finding {
   assetId?: string;
   occurrences?: number;
   locationDetails?: string;
+  isNew?: boolean;
 }
 
 export interface Action {
@@ -29,6 +30,7 @@ export interface Action {
   status: TaskStatus;
   dueDate?: string;
   isCompleted: boolean;
+  isNew?: boolean;
 }
 
 export interface Evidence {
@@ -73,6 +75,7 @@ export interface Report {
   siteName: string;
   inspector: string;
   createdAt: string;
+  updatedAt?: string;
   status: ReportStatus;
   priority: SeverityLevel;
   priorityReason?: string;
