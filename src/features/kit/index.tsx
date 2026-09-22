@@ -431,8 +431,8 @@ export const ComponentKitScreen: React.FC = () => {
           />
 
           <ErrorState
-            title="On-Device Model Check Failed"
-            message="WebGPU shader compilation was interrupted. Fallback to WASM SIMD engine initiated."
+            title="Something went wrong"
+            message="This is a sample error state."
             onRetry={() => alert('Retrying operation')}
             onReset={() => alert('Resetting state')}
           />

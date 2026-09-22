@@ -50,7 +50,7 @@ export const OfficeKitScreen: React.FC = () => {
       URL.revokeObjectURL(url);
 
       setIsTransferring(false);
-      setTransferNotice(`Successfully delivered "${reportToShare.title}" to paired laptop.`);
+      setTransferNotice(`Downloaded "${reportToShare.title}" as JSON. Open it on your laptop.`);
       setTimeout(() => setTransferNotice(null), 4000);
     }, 900);
   };

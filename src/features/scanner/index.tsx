@@ -42,46 +42,33 @@ export const ScannerScreen: React.FC = () => {
     setDetectedAsset({
       id: cleanId,
       title: assetRecord?.name || `Substation Switchgear ${cleanId}`,
-      previousReportsCount: linkedReports.length || 4,
-      openIssuesCount: openIssues > 0 ? openIssues : 1,
+      previousReportsCount: linkedReports.length,
+      openIssuesCount: openIssues,
       siteName: assetRecord?.siteName || linkedReports[0]?.siteName || 'Kukatpally Metro Site',
     });
   };
 
   const startCamera = async () => {
     setCameraError(null);
-
     try {
-      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-        throw new Error('Camera access not supported in this browser environment.');
+      if (!navigator.mediaDevices?.getUserMedia) {
+        throw new Error('Camera access not supported in this browser.');
       }
-
-      // Check if native BarcodeDetector is supported
-      if ('BarcodeDetector' in window) {
-        const stream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode: 'environment' },
-        });
-        if (videoRef.current) {
-          videoRef.current.srcObject = stream;
-          await videoRef.current.play();
+      if (!videoRef.current) return;
+      const scanner = new QrScanner(
+        videoRef.current,
+        (result) => {
+          if (result?.data) void resolveAssetDetails(result.data);
+        },
+        {
+          preferredCamera: 'environment',
+          returnDetailedScanResult: true,
+          highlightScanRegion: true,
+          highlightCodeOutline: true,
         }
-      } else if (videoRef.current) {
-        // Use qr-scanner library fallback
-        const scanner = new QrScanner(
-          videoRef.current,
-          (result) => {
-            if (result && result.data) {
-              resolveAssetDetails(result.data);
-            }
-          },
-          {
-            highlightScanRegion: true,
-            highlightCodeOutline: true,
-          }
-        );
-        qrScannerRef.current = scanner;
-        await scanner.start();
-      }
+      );
+      qrScannerRef.current = scanner;
+      await scanner.start();
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Camera unavailable or permission denied.';
       setCameraError(msg);

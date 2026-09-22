@@ -2,6 +2,8 @@
 
 FieldNote is an offline-first, on-device intelligence Progressive Web Application designed for rapid field data capture, voice-driven reporting, inspection audits, and task tracking under demanding outdoor (Daylight mode) and low-light field conditions (Dark mode).
 
+**Status: screening prototype and design reference. This is the full UX with a simulated engine. The real on-device build is written during the event window.**
+
 ---
 
 ## Run
@@ -54,13 +56,6 @@ FieldNote is a 100% client-side Progressive Web Application and can be hosted on
 - **Netlify**: `netlify.toml` provides the same SPA redirect and cache header rules. `public/_redirects` is the belt-and-suspenders fallback also honoured by Cloudflare Pages.
 - **Other static hosts**: Serve `/dist` from the root. Configure your host to return `index.html` for any path that is not a real file (SPA fallback).
 
-### Backend / Sync (Optional)
-The app runs fully without a backend. If you deploy the optional Phase 7 sync API:
-
-1. Copy `.env.example` → `.env.local` (never commit `.env.local`).
-2. Fill in `MONGODB_URI`, `JWT_SECRET`, and `ALLOWED_ORIGIN`.
-3. Set these three env vars in your Vercel / Netlify project dashboard.
-4. If `MONGODB_URI` is absent, every `/api` endpoint returns `503 { code: "SYNC_NOT_CONFIGURED" }` and the UI displays "Sync isn't configured in this deployment." The rest of the app works normally.
 
 ---
 
@@ -111,3 +106,9 @@ In strict compliance with standing rules and system transparency:
 | **Web Speech API** | **Not Wired Up** | Disabled with an honest explanation note in Settings. `OfflineBadge` indicates offline simulated status. |
 | **Hardware Volume Trigger** | **Not Wired Up** | Disabled with an honest explanation note in Settings due to browser background key capture limitations. |
 | **Biometric App Lock** | **Simulated** | Clearly labelled as a simulated toggle in Privacy settings; does not claim WebAuthn or `navigator.credentials` hardware verification. |
+| **QR / Barcode Scanning** | **Real** | Camera decode via `qr-scanner` library; lookup reads local Dexie DB and returns live report and issue counts for the scanned asset. |
+| **Document OCR** | **Simulated** | Placeholder camera capture with fixed extraction values; labelled "Simulated OCR" throughout the UI. |
+| **AES-GCM Encryption Module** | **Module only** | Self-test (PBKDF2 + AES-GCM-256 round-trip) works and passes unit tests; stored data in IndexedDB is not encrypted with it in this build. |
+| **Passcode Lock** | **Demo** | Locks the Privacy screen only; does not encrypt any stored data. |
+| **Backend / Sync / Share Links** | **Not built** | No server, no sync, no public share URL generation in this build. |
+| **ZIP Backup / Web Share Target** | **Not built** | Web Share Target manifest entry removed. Per-report PDF, Excel, CSV, and JSON export is real. |

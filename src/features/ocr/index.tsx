@@ -150,7 +150,7 @@ export const OcrScreen: React.FC = () => {
           </Link>
           <div>
             <h1 className="text-heading-sm font-bold text-text-primary">Camera & Document OCR</h1>
-            <p className="text-metadata text-text-muted">Document-corner framing & on-device text recognition</p>
+            <p className="text-metadata text-text-muted">Demo: simulated text recognition</p>
           </div>
         </div>
 

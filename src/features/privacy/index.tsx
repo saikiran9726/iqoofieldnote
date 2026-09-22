@@ -92,7 +92,7 @@ export const PrivacyScreen: React.FC = () => {
 
   // Handle removing passcode
   const handleRemovePasscode = () => {
-    if (confirm('Disable passcode protection and turn off AES-GCM encrypted storage?')) {
+    if (confirm('Remove the demo passcode?')) {
       clearPasscode();
       setHasPasscode(false);
       setIsLocked(false);
@@ -186,7 +186,7 @@ export const PrivacyScreen: React.FC = () => {
     if (confirm('Are you sure you want to purge all local field notes, reports, and IndexedDB stores? This cannot be undone.')) {
       indexedDB.deleteDatabase('FieldNoteDB');
       localStorage.clear();
-      alert('Local database completely purged. Zero residual data remains.');
+      alert('Local data purged.');
       window.location.reload();
     }
   };
@@ -201,7 +201,7 @@ export const PrivacyScreen: React.FC = () => {
         <div className="space-y-1 max-w-sm">
           <h2 className="text-heading-md font-bold text-text-primary">FieldNote Vault Locked</h2>
           <p className="text-metadata text-text-muted">
-            Enter your passcode to decrypt the local AES-GCM vault and resume inspection.
+            Enter your passcode to unlock.
           </p>
         </div>
 
@@ -361,7 +361,7 @@ export const PrivacyScreen: React.FC = () => {
             <div className="flex items-center gap-2">
               <KeyRound className="w-4 h-4 text-semantic-amber" />
               <h2 className="text-body-sm font-bold text-text-primary">
-                On-Device Storage Encryption (AES-GCM 256-bit)
+                Passcode & AES-GCM Self-Test
               </h2>
             </div>
             <p className="text-metadata text-text-muted max-w-xl">
@@ -372,11 +372,11 @@ export const PrivacyScreen: React.FC = () => {
           <div className="shrink-0">
             {hasPasscode ? (
               <span className="px-2.5 py-1 rounded-full text-[11px] font-mono font-bold uppercase bg-semantic-green-surface text-semantic-green-text border border-semantic-green-border flex items-center gap-1.5">
-                <ShieldCheck className="w-3.5 h-3.5" /> Encrypted Storage: ACTIVE
+                <ShieldCheck className="w-3.5 h-3.5" /> Demo passcode set
               </span>
             ) : (
               <span className="px-2.5 py-1 rounded-full text-[11px] font-mono font-bold uppercase bg-bg-surface2 text-text-muted border border-border-subtle flex items-center gap-1.5">
-                <Lock className="w-3.5 h-3.5" /> Encrypted Storage: OFF
+                <Lock className="w-3.5 h-3.5" /> No passcode
               </span>
             )}
           </div>
@@ -391,7 +391,7 @@ export const PrivacyScreen: React.FC = () => {
             <p className="text-metadata text-text-muted">
               {hasPasscode
                 ? 'App vault can be locked manually or during idle periods.'
-                : 'Encryption is currently OFF. Set a passcode to enable AES-GCM encryption.'}
+                : 'Set a demo passcode. Stored data is not encrypted in this prototype.'}
             </p>
           </div>
 

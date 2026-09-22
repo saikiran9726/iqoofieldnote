@@ -4,13 +4,14 @@
   command = "npm run build"
   publish = "dist"
 
+  [build.environment]
+    NODE_VERSION = "20"
+
 # SPA fallback — all paths serve index.html
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
-  # Exclude service worker, Workbox chunks, manifest, and hashed assets
-  conditions = {Role = ["!sw.js", "!workbox-*", "!manifest.webmanifest"]}
 
 # Service worker — must never be cached so updates propagate immediately
 [[headers]]

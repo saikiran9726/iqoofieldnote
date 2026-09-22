@@ -145,7 +145,7 @@ export const Layout: React.FC = () => {
               <span className="w-2 h-2 rounded-full bg-semantic-green animate-pulse" />
               <span>Zero-Cloud Core</span>
             </div>
-            <p className="leading-snug">Dexie IndexedDB + On-device WebGPU/WASM runtime.</p>
+            <p className="leading-snug">Dexie IndexedDB storage + simulated demo engine.</p>
           </div>
         </aside>
 

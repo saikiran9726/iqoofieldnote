@@ -8,7 +8,6 @@ import {
   Info,
   Database,
   Search,
-  Download,
   Settings,
   ChevronRight,
   Sun,
@@ -63,7 +62,7 @@ export const MoreScreen: React.FC = () => {
       title: t('privacyTrust'),
       description: t('privacyTrustDesc'),
       icon: ShieldCheck,
-      badge: 'AES-GCM',
+      badge: 'Trust',
     },
     {
       to: '/templates',
@@ -92,13 +91,6 @@ export const MoreScreen: React.FC = () => {
       description: 'Zero-latency on-device query parser across field notes & findings',
       icon: Search,
       badge: 'Local DB',
-    },
-    {
-      to: '/export',
-      title: 'Dossier Backup & Export',
-      description: 'Package notes, media, and CSV/JSON datasets into offline archives',
-      icon: Download,
-      badge: 'ZIP/CSV',
     },
   ];
 

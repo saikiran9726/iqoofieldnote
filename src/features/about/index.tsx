@@ -52,7 +52,7 @@ export const AboutScreen: React.FC = () => {
             <h3 className="text-body-sm font-bold text-text-primary">Storage & Offline Engine</h3>
           </div>
           <p className="text-metadata text-text-muted leading-relaxed">
-            Dexie IndexedDB local database with zero cloud telemetry. AES-GCM 256-bit storage encryption with PBKDF2 100,000-iteration key derivation.
+            Dexie IndexedDB local database with zero cloud telemetry. An AES-GCM encryption module is built and tested, but stored data is not yet encrypted with it.
           </p>
         </div>
 
@@ -96,7 +96,7 @@ export const AboutScreen: React.FC = () => {
         <ul className="space-y-1.5 text-metadata text-text-secondary">
           <li>• <strong>Zero Network Exfiltration:</strong> Core capture, recording, processing, and PDF exports run 100% offline.</li>
           <li>• <strong>Daylight AA+ Contrast:</strong> High-ambient solar visibility palette designed for outdoor railway & substation fields.</li>
-          <li>• <strong>PWA Standards:</strong> Service worker asset precaching, background sync queue, and Web Share Target compatibility.</li>
+          <li>• <strong>PWA Standards:</strong> Service worker asset precaching for offline use.</li>
         </ul>
       </div>
 
